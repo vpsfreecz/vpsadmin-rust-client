@@ -1,0 +1,117 @@
+# Development and regeneration
+
+`src/lib.rs`, package files, examples and tests are handwritten.
+`src/generated/**` is owned by the HaveAPI Rust generator, including the runtime
+copied from `clients/rust/runtime/src/runtime/**`. Fix maintained HaveAPI source
+and regenerate when generated behavior needs a change. A runtime fix in HaveAPI
+reaches crate consumers only after regeneration and a new client release.
+
+## Tools
+
+Enter the committed Nix environment with `nix develop`. The client retains its
+own pinned nixpkgs revision:
+`fe13242281a67641c0102cdb1087f0ebe586c7df`. Generation requires the exact formatter
+output `rustfmt 1.9.0` recorded in `generator.toml`, using edition 2024.
+The pinned compiler is newer than the separate Rust 1.95 minimum.
+
+The crate depends on reqwest, Serde, serde_json and url. The optional `blocking`
+feature enables reqwest's blocking transport. Tokio is a development/example
+dependency. Retain `Cargo.lock` for repeatable verification.
+
+## Saved schema
+
+`schema/api-7.0.json` is a canonical sanitized snapshot of an unauthenticated
+OPTIONS request to the explicit production API 7.0 endpoint. It retains paths,
+wire names, validators, namespaces, nullability and authentication discovery.
+The sanitizer removes prose, examples, validator messages and protected defaults.
+The canonical digest covers sorted JSON object keys, two-space indentation,
+LF newlines and a terminal newline. Arrays keep their order.
+
+`schema/provenance.json` records the capture profile, acquisition time,
+canonical digest, sanitizer diagnostics, generator revision, runtime digest and
+toolchain. `schema/inventory.json` describes the captured resources, actions and
+parameters. Plugin completeness is unknown. These files describe one public
+surface; they do not combine metadata from different credentials or replace it
+with an administrator's local description.
+
+Refreshing the capture is an explicit maintenance action. Use the generator's
+`fetch` command with API version `7.0` and profile `public-live-api-7.0`, review
+the sanitized result and its inventory, then update provenance and regenerate.
+Keep raw HTTP captures outside the repository. Never save authentication
+headers, cookies, credentials, login responses or transient tokens.
+
+## Offline generation
+
+Obtain the HaveAPI source revision recorded in provenance. Install its
+`clients/rust/Gemfile` dependencies using its committed lockfile; the generator
+and Ruby dependencies are development tools, not crate runtime dependencies.
+Then run from this repository inside `nix develop`:
+
+```sh
+export HAVEAPI_SOURCE=/path/to/recorded/haveapi
+BUNDLE_GEMFILE="$HAVEAPI_SOURCE/clients/rust/Gemfile" bundle install
+tools/regenerate
+tools/regenerate --check
+```
+
+Generation reads the saved snapshot without contacting the API. `--check` is
+read-only and reports drift. Regeneration replaces only `src/generated`; it
+preserves handwritten package files. Review manifest requirements when the
+generator changes. Commit generated refreshes separately from handwritten
+changes. Compare source/runtime digests and update provenance for each refresh.
+
+## Verification
+
+Known quick checks are `cargo fmt --all -- --check`, `bash -n tools/regenerate`,
+`tools/check-provenance`, and deterministic `tools/regenerate --check` once the
+generator is available. The provenance check compares snapshot, inventory and
+generated digests with the retained record.
+
+Compilation and acceptance commands are:
+
+```sh
+cargo test --locked --all-targets
+cargo test --locked --all-targets --features blocking
+cargo doc --locked --all-features --no-deps
+cargo package --locked
+```
+
+Also verify the minimum supported compiler with Rust 1.95 and the committed
+lockfile. CI runs offline-schema generation and the default/blocking matrices;
+ordinary checks need no live API.
+
+The real vpsAdmin acceptance test is ignored by default because it changes
+disposable server state. Start HaveAPI's
+`clients/rust/spec/integration/support/vpsadmin_server.rb` with an explicit
+vpsAdmin fixture-source checkout, following that harness's instructions. It
+owns its ephemeral listener and private database. Pass its readiness URL as
+`VPSADMIN_TEST_BASE_URL` and its `VPSADMIN_FIXTURE_READY` JSON object as
+`VPSADMIN_FIXTURE_JSON`. Set `VPSADMIN_REAL_INTEGRATION=1` to opt in, then run:
+
+```sh
+cargo test --locked --all-features --test real_vpsadmin -- --ignored --test-threads=1
+```
+
+The test accepts loopback HTTP URLs only, uses the fixture's local Basic
+credentials, and exercises async/blocking VPS show and info update, pagination,
+nullable DNS TTL, Custom JSON and token actions. Do not point it at production.
+Stop the fixture through its owning harness when verification ends.
+
+## Compatibility and release checks
+
+API version 7.0 selects the generated contract. Crate SemVer versions the Rust
+interface, including copied common types. A compatible server may add fields;
+older clients tolerate unknown output fields. Removed actions, changed public
+types, newly required inputs or a different API target need a breaking crate
+version. During 0.x this means a new minor version. Document MSRV changes.
+
+Before an authorized release, review the schema/provenance, regenerate, run the
+verification matrix and package check, and update `CHANGELOG.md`. Inspect
+`cargo package --list --locked` so the package contains the generated runtime
+and has no HaveAPI path or Git dependency. Publishing to crates.io is a separate
+explicit action; no task here publishes automatically.
+
+No server deployment, database migration or coordinated node update is needed.
+Old and new client versions can coexist while the server offers their API
+versions. Consumers can recover by pinning an older crate and lockfile. Rolling
+back a client cannot undo server actions it already submitted.

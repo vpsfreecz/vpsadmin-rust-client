@@ -1,0 +1,6 @@
+crate_name = "vpsadmin-client"
+crate_version = "0.1.0"
+license = "MIT"
+edition = "2024"
+rust_version = "1.95"
+rustfmt_version = "rustfmt 1.9.0"

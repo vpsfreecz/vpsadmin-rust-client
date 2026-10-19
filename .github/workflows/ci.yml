@@ -1,0 +1,76 @@
+name: Rust client
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  client:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        mode: [async, blocking]
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: cachix/install-nix-action@v31.11.2
+      - name: Check formatting
+        run: |
+          nix develop --command cargo fmt --all -- --check
+          nix develop --command tools/check-provenance
+      - name: Test client and examples
+        env:
+          MODE: ${{ matrix.mode }}
+        run: |
+          if [ "$MODE" = blocking ]; then
+            nix develop --command cargo test --locked --all-targets --features blocking
+          else
+            nix develop --command cargo test --locked --all-targets
+          fi
+      - name: Check documentation and package
+        if: matrix.mode == 'blocking'
+        run: |
+          nix develop --command cargo doc --locked --all-features --no-deps
+          nix develop --command cargo package --locked
+
+  msrv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: cachix/install-nix-action@v31.11.2
+      - name: Check Rust 1.95 with the committed dependency lock
+        run: |
+          rustup toolchain install 1.95.0 --profile minimal
+          rustup_bin=$(command -v rustup)
+          nix develop --command "$rustup_bin" run 1.95.0 cargo test --locked --all-targets
+          nix develop --command "$rustup_bin" run 1.95.0 cargo test --locked --all-targets --features blocking
+
+  regeneration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: cachix/install-nix-action@v31.11.2
+      - name: Read recorded generator revision
+        id: generator
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          revision = json.load(open('schema/provenance.json'))['generator']['revision']
+          assert len(revision) == 40 and all(c in '0123456789abcdef' for c in revision)
+          print(f'revision={revision}')
+          PY
+      - uses: actions/checkout@v7.0.1
+        with:
+          repository: vpsfreecz/haveapi
+          ref: ${{ steps.generator.outputs.revision }}
+          path: .haveapi-generator
+      - name: Install generator dependencies and check saved source
+        env:
+          BUNDLE_PATH: ${{ runner.temp }}/rust-generator-gems
+        run: |
+          export HAVEAPI_SOURCE="$GITHUB_WORKSPACE/.haveapi-generator"
+          nix develop --command bundle install --gemfile "$HAVEAPI_SOURCE/clients/rust/Gemfile"
+          nix develop --command tools/regenerate --check
