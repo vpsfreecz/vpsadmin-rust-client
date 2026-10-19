@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+"""Check the retained snapshot and generator provenance without network access."""
+
+import hashlib
+import json
+import pathlib
+import re
+import tomllib
+
+root = pathlib.Path(__file__).resolve().parent.parent
+provenance = json.loads((root / "schema/provenance.json").read_text())
+snapshot_path = root / "schema/api-7.0.json"
+snapshot = json.loads(snapshot_path.read_text())
+inventory = json.loads((root / "schema/inventory.json").read_text())
+generated = json.loads((root / "src/generated/.haveapi-generated.json").read_text())
+config = tomllib.loads((root / "generator.toml").read_text())
+
+
+def require(condition, message):
+    if not condition:
+        raise SystemExit(message)
+
+
+digest = hashlib.sha256(snapshot_path.read_bytes()).hexdigest()
+require(digest == provenance["schema_sha256"] == inventory["schema_sha256"]
+        == generated["schema_sha256"], "schema digests differ")
+require(snapshot["api_version"] == provenance["api_version"] == "7.0", "API version differs")
+require(snapshot["profile"] == provenance["capture"]["profile"]
+        == generated["profile"], "capture profile differs")
+require(snapshot["protocol_version"] == provenance["protocol_version"]
+        == generated["protocol_version"], "protocol version differs")
+require(provenance["capture"]["authenticated"] is False, "unexpected authenticated capture")
+require(re.fullmatch(r"[0-9a-f]{40}", provenance["generator"]["revision"] or ""),
+        "record an exact generator revision")
+require(config == provenance["generator"]["options"] == generated["config"],
+        "generator options differ")
+require(provenance["generator"]["source_sha256"] == generated["generator_source_sha256"],
+        "generator source digest differs")
+require(provenance["generator"]["ruby_dependency_lock_sha256"]
+        == generated["ruby_dependency_lock_sha256"], "Ruby dependency lock digest differs")
+require(provenance["runtime"]["sha256"] == generated["runtime_sha256"],
+        "copied runtime digest differs")
+for name in ("resource_count", "action_count", "parameter_count"):
+    require(inventory[name] == provenance["coverage"][name], f"inventory {name} differs")
+print(f"API 7.0 snapshot and generated provenance match: {digest}")

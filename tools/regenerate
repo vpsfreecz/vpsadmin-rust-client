@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+client_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
+: "${HAVEAPI_SOURCE:?Set HAVEAPI_SOURCE to the recorded HaveAPI source checkout}"
+generator_root=$(cd -- "$HAVEAPI_SOURCE/clients/rust" && pwd -P)
+export BUNDLE_GEMFILE="$generator_root/Gemfile"
+
+if [[ $# -gt 1 || ( $# -eq 1 && $1 != --check ) ]]; then
+  printf '%s\n' 'usage: tools/regenerate [--check]' >&2
+  exit 2
+fi
+
+exec bundle exec ruby -I "$generator_root/lib" \
+  "$generator_root/bin/haveapi-rust-client" generate \
+  --schema "$client_root/schema/api-7.0.json" \
+  --api-version 7.0 \
+  --config "$client_root/generator.toml" \
+  --output "$client_root/src/generated" "$@"

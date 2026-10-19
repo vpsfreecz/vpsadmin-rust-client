@@ -1,0 +1,63 @@
+{
+  "api_version": "7.0",
+  "capture": {
+    "authenticated": false,
+    "captured_at": "2026-10-19T16:54:51.865940+00:00",
+    "followed_redirects": false,
+    "method": "OPTIONS",
+    "profile": "public-live-api-7.0",
+    "raw_response_sha256": "40f5a78d3156551abdfea7b1225669bcc79c70ba342de7f74f55595567dfb72e",
+    "source_url": "https://api.vpsfree.cz/v7.0/"
+  },
+  "coverage": {
+    "action_count": 524,
+    "api_action_count": 519,
+    "authentication_action_count": 5,
+    "completeness": "captured public description only",
+    "parameter_count": 8720,
+    "plugins": "unknown",
+    "resource_count": 152,
+    "top_level_resource_count": 104
+  },
+  "generator": {
+    "options": {
+      "crate_name": "vpsadmin-client",
+      "crate_version": "0.1.0",
+      "edition": "2024",
+      "license": "MIT",
+      "rust_version": "1.95",
+      "rustfmt_version": "rustfmt 1.9.0"
+    },
+    "repository": "https://github.com/vpsfreecz/haveapi",
+    "revision": "9e4c29a0412a25256ce944641f60ba13e9f03c2b",
+    "ruby_dependency_lock_sha256": "7ab15ed0bf0ded01fbb03f2f8e6b4ad73ef2806b1ee9199acea8a5269080b2f1",
+    "source_sha256": "b2f1408d9a53eda4bdf33054f4293e5e1ae712d69c66863e6c0ee71902bcfc13",
+    "version": "0.29.0"
+  },
+  "protocol_version": "2.0",
+  "runtime": {
+    "delivery": "source copied into generated crate; no runtime package dependency",
+    "sha256": "9c50b8167a8b82118ba42372633e3b004276ba49fbdfed75d4979a913feea739",
+    "source_directory": "clients/rust/runtime/src/runtime"
+  },
+  "sanitization": {
+    "owner": "HaveAPI::RustClient::Snapshot",
+    "protected_default_diagnostics": [],
+    "removed_fields": [
+      "descriptive prose",
+      "examples",
+      "validator human messages",
+      "protected default values"
+    ]
+  },
+  "schema_format": 1,
+  "schema_sha256": "70f89335e15263fd7177f29a00fab04b5ff1923c6922dfd318b07c3ae922fb8d",
+  "toolchain": {
+    "cargo": "cargo 1.98.0 (797e8a9bc 2026-08-05)",
+    "edition": "2024",
+    "minimum_rust_version": "1.95",
+    "nixpkgs_revision": "fe13242281a67641c0102cdb1087f0ebe586c7df",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01) (built from a source tarball)",
+    "rustfmt": "rustfmt 1.9.0"
+  }
+}
