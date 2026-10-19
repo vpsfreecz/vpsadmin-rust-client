@@ -109,9 +109,66 @@ Before an authorized release, review the schema/provenance, regenerate, run the
 verification matrix and package check, and update `CHANGELOG.md`. Inspect
 `cargo package --list --locked` so the package contains the generated runtime
 and has no HaveAPI path or Git dependency. Publishing to crates.io is a separate
-explicit action; no task here publishes automatically.
+explicit action through the manual workflow described below.
 
 No server deployment, database migration or coordinated node update is needed.
 Old and new client versions can coexist while the server offers their API
 versions. Consumers can recover by pinning an older crate and lockfile. Rolling
 back a client cannot undo server actions it already submitted.
+
+## Publishing from GitHub Actions
+
+Run `release.yml` manually against a tag matching
+`v<Cargo.toml package.version>`. The workflow publishes `vpsadmin-client` from
+this repository after the normal CI matrix passes for that commit. It checks
+that the tag still points to the verified commit before publishing. Publication
+runs execute one at a time; branch pushes and pull requests do not publish.
+
+Both `release.yml` and `ci.yml` must exist on the default branch and at the
+tagged revision. GitHub cannot dispatch a workflow that exists only on a feature
+branch. A repository administrator must create the `release` environment,
+require reviewers and restrict deployments to the intended version tags.
+Configure these protections and registry credentials before running a release.
+
+### First publication
+
+[crates.io trusted publishing](https://crates.io/docs/trusted-publishing)
+requires an existing crate. For its first version, create a short-expiry API
+token with the minimum available publish scope for `vpsadmin-client`. Store it
+as the `release` environment secret `CARGO_PUBLISH_BOOTSTRAP_TOKEN`. No local
+Cargo login is needed.
+
+After reviewing and pushing the version tag, select bootstrap mode. Replace
+`v0.1.0` with the tag matching the manifest:
+
+```sh
+gh workflow run release.yml --repo vpsfreecz/vpsadmin-rust-client \
+  --ref v0.1.0 -f authentication=bootstrap
+```
+
+Bootstrap requires a missing crate (registry HTTP 404) and a configured token.
+An existing crate, missing secret or failed registry lookup stops publication.
+The token is supplied only to `cargo publish --locked` after verification.
+
+### Subsequent publications
+
+After the first upload, a crate owner must register a trusted publisher in
+crates.io Settings → Trusted Publishing with owner `vpsfreecz`, repository
+`vpsadmin-rust-client`, workflow `release.yml` and environment `release`.
+Revoke the bootstrap token and delete its environment secret. Dispatch later
+version tags using the default OIDC mode:
+
+```sh
+gh workflow run release.yml --repo vpsfreecz/vpsadmin-rust-client \
+  --ref v0.1.1 -f authentication=oidc
+```
+
+The workflow obtains OIDC credentials after verification and toolchain setup,
+then passes them only to the publish step. OIDC failure never falls back to an API token.
+Package checks and dry runs do not prove that registry authentication or upload
+works; those require the owner prerequisites and an authorized publication.
+
+If an upload fails, inspect registry state before retrying: a version may have
+been accepted even if the workflow failed. Never move a release tag or try to
+overwrite a published version. To stop future publication, disable the workflow
+or remove its trusted publisher binding.
