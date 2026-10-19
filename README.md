@@ -1,33 +1,44 @@
 # vpsAdmin Rust client
 
-Typed async and optional blocking clients for **vpsAdmin API 7.0**, generated
-from the public unauthenticated description at
-<https://api.vpsfree.cz/v7.0/>. The package version is independent of the API
-version. The saved schema and `SCHEMA_SHA256` identify the generated surface.
+Rust client library for [vpsAdmin](https://github.com/vpsfreecz/vpsadmin)
+API 7.0, with async and optional blocking clients. Requires Rust 1.95 or newer.
 
-The capture describes 104 top-level resources, 152 resources including nested
-and authentication resources, and 524 actions. Permission-dependent metadata
-does not establish complete API or plugin coverage. See
-[schema provenance](schema/provenance.json) and
-[the inventory](schema/inventory.json) for the exact capture.
+## Installation
 
-The crate contains its protocol runtime and generated source. Using it needs
-neither Ruby, HaveAPI source nor a running API during compilation. Rust 1.95 or
-newer is required. HTTPS uses reqwest's Rustls platform verifier and aws-lc
-backend, which can require a C toolchain to build.
-
-## Async use
-
-The crate has not been published to crates.io. Use a local checkout as a path
-dependency and add Tokio to your application:
+Add the client and Tokio to your application:
 
 ```toml
 [dependencies]
-vpsadmin-client = { path = "../vpsadmin-rust-client" }
+vpsadmin-client = "0.1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
-Use a URL for the server mount root, without `/v7.0/`.
+Building the TLS dependencies may require a C toolchain.
+
+## Usage
+
+Create a client with the server's base URL, without `/v7.0/`. Public actions
+work without authentication:
+
+```rust,no_run
+use vpsadmin_client::Client;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let api = Client::builder("https://api.vpsfree.cz").build()?;
+    let response = api.cluster().public_stats().send().await?;
+    println!("VPS count: {:?}", response.output.vps_count);
+    Ok(())
+}
+```
+
+Resource methods return action builders. Pass resource IDs to methods such as
+`show(id)`, set input fields, then call `.send().await?`. The response contains
+typed `output`, action metadata in `meta`, and `http_status`.
+
+### Authentication
+
+Configure an existing HaveAPI token with `.token(...)`:
 
 ```rust,no_run
 use vpsadmin_client::Client;
@@ -43,77 +54,95 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-The [async example](examples/async_vps.rs) reads a VPS without changing it:
+HTTP Basic authentication uses `.basic_auth(username, password)`; OAuth2 access
+tokens use `.oauth2_token(token)`. Choose one authentication method when
+building the client. Token login, challenges, renewal and revocation are
+explicit actions under `api.authentication__token__token()`; the client does
+not acquire or refresh tokens automatically.
 
-```sh
-cargo run --locked --example async_vps -- 123
-```
+### Input parameters
 
-Set `VPSADMIN_TOKEN` in the environment before running the example. Set
-`VPSADMIN_URL` to use another server offering API 7.0. Credentials are supplied
-explicitly through `.token(...)`, `.oauth2_token(...)` or
-`.basic_auth(username, password)`; choose one method. Tokens use the header
-described by the captured API.
-
-## Blocking use
-
-Enable the `blocking` feature and use `vpsadmin_client::blocking::Client` with
-the same builders and models. Calls end in `.send()?`.
-
-```sh
-cargo run --locked --features blocking --example blocking_vps -- 123
-```
-
-Construct, use and drop the blocking client outside an async runtime. Async
-applications should use the async client, or put the entire blocking-client
-lifecycle inside `tokio::task::spawn_blocking`. Aborting a started blocking
-task does not cancel its HTTP request.
-
-## Inputs, responses and failures
-
-Setters send only the fields you supply. Unset fields stay omitted; `false`,
-zero and empty strings are sent as values. Nullable fields have an explicit
-`_null()` setter. For example, these calls change server state:
+Only fields set on an action builder are sent. For example, this request changes
+the VPS info field and leaves other fields untouched:
 
 ```rust,ignore
 api.vps().update(vps_id).info("Maintenance note").send().await?;
+```
+
+Setters preserve `false`, zero and empty strings. Use a field's `_null()` setter
+to send an explicit null where supported:
+
+```rust,ignore
 api.dns_record().update(record_id).ttl_null().send().await?;
 ```
 
-Custom parameters accept `serde_json::Value`. Ordinary response fields are
-optional because permissions and server responses can omit them. Associations
-preserve partial JSON maps; they do not fetch related objects. A `Response`
-contains typed `output`, action metadata in `meta`, and `http_status`.
+Custom parameters accept `serde_json::Value`. Response fields use `Option`
+because permissions and partial responses can omit them. Related objects can
+also be partial; the client does not fetch them automatically.
 
-Action models live under modules such as `resources::vps::show`. Nested resource
-accessors join resource components with double underscores and take parent path
-arguments, for example `api.dataset__plan(dataset_id).show(plan_id)`. Token
-actions use `api.authentication__token__token()`.
+For pagination, use the action's `.limit(...)` and `.from_id(...)` setters.
+Nested resources take the parent ID and join resource names with double
+underscores, for example `api.dataset__plan(dataset_id).show(plan_id)`.
 
-GET actions use bracketed scalar query parameters. Query null is encoded as an
-empty string, so GET cannot distinguish every null/empty-string case. Nested
-Custom JSON and list input in GET queries are unsupported. DELETE, POST, PUT and
-PATCH actions use JSON request bodies, preserving explicit null, nested Custom
-values and supported named list input.
+### Timeouts and errors
 
-The client validates input and response envelopes. Errors distinguish local
-validation, encoding, transport, HTTP, API, protocol and typed decoding failures.
-Default deadlines are 30 seconds per request and 10 seconds to connect, with a
-16 MiB response limit. Builders can change these limits. Redirects and automatic
-retries are disabled. A timeout may follow a completed server mutation; decide
-how to recover before repeating it.
+The default request timeout is 30 seconds and the connection timeout is 10
+seconds. Set `.timeout(Duration::from_secs(60))` or
+`.connect_timeout(Duration::from_secs(10))` on `Client::builder(...)` to change
+them, using `std::time::Duration`.
 
-Pagination and token actions are explicit. Call `index().limit(...).from_id(...)`
-for subsequent pages. Token login, challenges, renewal and revocation are
-generated actions; the client does not install or refresh a token automatically.
-Browser OAuth2 orchestration, automatic paging and ActionState polling are not
-included. A successful action response can describe work still running on the
-server.
+Requests return errors for invalid inputs, transport failures, unsuccessful
+HTTP or API responses, and invalid response data. Redirects and automatic
+retries are disabled. A timeout can occur after the server has applied a
+change, so check its state before repeating a mutation. Some successful actions
+start background work; a successful response does not mean that work has finished.
 
-## Development and releases
+## Blocking client
 
-See [development and regeneration](docs/development.md) for pinned tools,
-offline generation, local-server acceptance and release checks. Generated code
-and copied runtime files must be refreshed through the HaveAPI generator.
+Enable the `blocking` feature:
 
-MIT licensed; see [LICENSE](LICENSE).
+```toml
+[dependencies]
+vpsadmin-client = { version = "0.1", features = ["blocking"] }
+```
+
+Use `vpsadmin_client::blocking::Client` with the same action builders and
+response types. Calls end in `.send()?`:
+
+```rust,no_run
+use vpsadmin_client::blocking::Client;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let api = Client::builder("https://api.vpsfree.cz").build()?;
+    let stats = api.cluster().public_stats().send()?.output;
+    println!("VPS count: {:?}", stats.vps_count);
+    Ok(())
+}
+```
+
+Construct, use and drop the blocking client outside an async runtime. In an
+async application, use the async client or put the entire blocking-client
+lifecycle inside `tokio::task::spawn_blocking`.
+
+## Examples and documentation
+
+See the [API reference](https://docs.rs/vpsadmin-client) for resources, actions
+and response types.
+
+The [async](https://github.com/vpsfreecz/vpsadmin-rust-client/blob/2026-10-18-rust-client-generator/examples/async_vps.rs)
+and [blocking](https://github.com/vpsfreecz/vpsadmin-rust-client/blob/2026-10-18-rust-client-generator/examples/blocking_vps.rs)
+examples read a VPS using `VPSADMIN_TOKEN`. From a repository checkout:
+
+```sh
+cargo run --locked --example async_vps -- 123
+cargo run --locked --features blocking --example blocking_vps -- 123
+```
+
+Set `VPSADMIN_URL` to use another server offering API 7.0. The crate version and
+API version are independent.
+
+The client is generated with [HaveAPI](https://github.com/vpsfreecz/haveapi).
+See [development and regeneration](https://github.com/vpsfreecz/vpsadmin-rust-client/blob/2026-10-18-rust-client-generator/docs/development.md)
+for source maintenance and release checks.
+
+MIT licensed; see [LICENSE](https://github.com/vpsfreecz/vpsadmin-rust-client/blob/2026-10-18-rust-client-generator/LICENSE).
