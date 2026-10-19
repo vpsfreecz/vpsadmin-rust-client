@@ -1,0 +1,68 @@
+use crate::runtime;
+use std::collections::BTreeMap;
+pub mod cancel;
+pub mod index;
+pub mod poll;
+pub mod show;
+
+pub struct Handle<'a, C: runtime::Mode> {
+    client: &'a runtime::Client<C>,
+    path_params: BTreeMap<String, String>,
+}
+impl<C: runtime::Mode> runtime::Client<C> {
+    pub fn action_state(&self) -> Handle<'_, C> {
+        let path_params = BTreeMap::from([]);
+        Handle {
+            client: self,
+            path_params,
+        }
+    }
+}
+impl<'a, C: runtime::Mode> Handle<'a, C> {
+    pub fn cancel(
+        &self,
+        action_state_id: impl ToString,
+    ) -> runtime::Request<'a, C, cancel::Input, cancel::Output, cancel::Meta> {
+        #[allow(unused_mut)]
+        let mut path_params = self.path_params.clone();
+        path_params.insert("action_state_id".to_owned(), action_state_id.to_string());
+        runtime::Request::new(self.client, &cancel::SPEC, path_params, Default::default())
+    }
+    pub fn index(&self) -> runtime::Request<'a, C, index::Input, Vec<index::Output>, index::Meta> {
+        #[allow(unused_mut)]
+        let mut path_params = self.path_params.clone();
+        runtime::Request::new(self.client, &index::SPEC, path_params, Default::default())
+    }
+    pub fn list(&self) -> runtime::Request<'a, C, index::Input, Vec<index::Output>, index::Meta> {
+        #[allow(unused_mut)]
+        let mut path_params = self.path_params.clone();
+        runtime::Request::new(self.client, &index::SPEC, path_params, Default::default())
+    }
+    pub fn poll(
+        &self,
+        action_state_id: impl ToString,
+    ) -> runtime::Request<'a, C, poll::Input, poll::Output, poll::Meta> {
+        #[allow(unused_mut)]
+        let mut path_params = self.path_params.clone();
+        path_params.insert("action_state_id".to_owned(), action_state_id.to_string());
+        runtime::Request::new(self.client, &poll::SPEC, path_params, Default::default())
+    }
+    pub fn show(
+        &self,
+        action_state_id: impl ToString,
+    ) -> runtime::Request<'a, C, show::Input, show::Output, show::Meta> {
+        #[allow(unused_mut)]
+        let mut path_params = self.path_params.clone();
+        path_params.insert("action_state_id".to_owned(), action_state_id.to_string());
+        runtime::Request::new(self.client, &show::SPEC, path_params, Default::default())
+    }
+    pub fn find(
+        &self,
+        action_state_id: impl ToString,
+    ) -> runtime::Request<'a, C, show::Input, show::Output, show::Meta> {
+        #[allow(unused_mut)]
+        let mut path_params = self.path_params.clone();
+        path_params.insert("action_state_id".to_owned(), action_state_id.to_string());
+        runtime::Request::new(self.client, &show::SPEC, path_params, Default::default())
+    }
+}
