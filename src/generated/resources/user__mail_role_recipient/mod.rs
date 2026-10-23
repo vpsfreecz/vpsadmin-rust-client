@@ -9,6 +9,8 @@ pub struct Handle<'a, C: runtime::Mode> {
     path_params: BTreeMap<String, String>,
 }
 impl<C: runtime::Mode> runtime::Client<C> {
+    // Double underscores preserve resource component boundaries in the public API.
+    #[allow(non_snake_case)]
     pub fn user__mail_role_recipient(&self, user_id: impl ToString) -> Handle<'_, C> {
         let path_params = BTreeMap::from([("user_id".to_owned(), user_id.to_string())]);
         Handle {
