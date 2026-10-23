@@ -20,6 +20,7 @@
               clippy
               ruby_3_3
               pkg-config
+              libffi
               cmake
               git
               cacert

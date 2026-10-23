@@ -45,14 +45,30 @@ headers, cookies, credentials, login responses or transient tokens.
 Obtain the HaveAPI source revision recorded in provenance. Install its
 `clients/rust/Gemfile` dependencies using its committed lockfile; the generator
 and Ruby dependencies are development tools, not crate runtime dependencies.
-Then run from this repository inside `nix develop`:
+The generator uses Fiddle for atomic directory exchange. The Nix shell supplies
+libffi to build its native extension. From this repository, enter `nix develop`
+and prepare a separate Ruby 3.3 bundle frozen to the recorded lockfile:
 
 ```sh
 export HAVEAPI_SOURCE=/path/to/recorded/haveapi
-BUNDLE_GEMFILE="$HAVEAPI_SOURCE/clients/rust/Gemfile" bundle install
+export GEM_HOME="$PWD/target/generator-gems"
+export GEM_PATH="$GEM_HOME:$(ruby -e 'puts Gem.default_dir')"
+export PATH="$GEM_HOME/bin:$PATH"
+export BUNDLE_GEMFILE="$HAVEAPI_SOURCE/clients/rust/Gemfile"
+export BUNDLE_PATH="$PWD/target/generator-bundle"
+export BUNDLE_USER_HOME="$PWD/target/bundler-user"
+export BUNDLE_APP_CONFIG="$PWD/target/bundler-config"
+export BUNDLE_FROZEN=true
+gem install --no-document bundler --version 4.0.23
+bundle install
 tools/regenerate
 tools/regenerate --check
 ```
+
+Keep the recorded HaveAPI checkout and its lockfile unchanged. Do not reuse its
+Ruby 3.4 native gems or write Bundler configuration into that checkout. Generation
+uses this crate's exact `rustfmt 1.9.0`; the HaveAPI development formatter may be
+newer and must not replace it.
 
 Generation reads the saved snapshot without contacting the API. `--check` is
 read-only and reports drift. Regeneration replaces only `src/generated`; it
