@@ -16,7 +16,13 @@ The pinned compiler is newer than the separate Rust 1.95 minimum.
 
 The crate depends on reqwest, Serde, serde_json and url. The optional `blocking`
 feature enables reqwest's blocking transport. Tokio is a development/example
-dependency. Retain `Cargo.lock` for repeatable verification.
+dependency. Keep `Cargo.lock` local and ignored for this library; applications
+that use the crate keep their own locks. In a fresh checkout, run
+`cargo generate-lockfile` once in the pinned shell, then use `--locked` for
+verification. Retain that lock with the verification evidence. CI resolves
+dependencies once per run and passes the same lock to every compiler, package
+and publishing job, using its artifact ID and SHA-256. Keep `flake.lock` tracked.
+Cargo may include a resolved lock in the `.crate` archive.
 
 ## Saved schema
 
@@ -42,15 +48,27 @@ headers, cookies, credentials, login responses or transient tokens.
 
 ## Offline generation
 
-Obtain the HaveAPI source revision recorded in provenance. Install its
-`clients/rust/Gemfile` dependencies using its committed lockfile; the generator
-and Ruby dependencies are development tools, not crate runtime dependencies.
-The generator uses Fiddle for atomic directory exchange. The Nix shell supplies
-libffi to build its native extension. From this repository, enter `nix develop`
-and prepare a separate Ruby 3.3 bundle frozen to the recorded lockfile:
+Obtain the exact HaveAPI 0.30.1 source revision recorded in provenance:
+`1c3c98f0d77e0b23c8da1a8937f25c5799864a3b`. Use a clean, separate checkout.
+HaveAPI does not track the generator's Ruby lock in Git. Restore the original
+release input from the official manifest before installing dependencies.
+`tools/prepare-generator-lock` accepts a local manifest and verifies its recorded
+SHA-256, source, version and Ruby lock digest. It writes only the ignored
+`clients/rust/Gemfile.lock`, accepts identical existing bytes and rejects a
+conflict or symlink. It does not fetch or resolve dependencies.
+
+The generator and Ruby dependencies are development tools, not crate runtime
+dependencies. The generator uses Fiddle for atomic directory exchange. The Nix
+shell supplies libffi to build its native extension. From this repository,
+enter `nix develop` and prepare a separate Ruby 3.3 bundle frozen to that lock:
 
 ```sh
 export HAVEAPI_SOURCE=/path/to/recorded/haveapi
+mkdir -p target
+curl --fail --location --proto '=https' --tlsv1.2 \
+  https://github.com/vpsfreecz/haveapi/releases/download/v0.30.1/release-manifest.json \
+  --output "$PWD/target/haveapi-release-manifest.json"
+tools/prepare-generator-lock "$PWD/target/haveapi-release-manifest.json"
 export GEM_HOME="$PWD/target/generator-gems"
 export GEM_PATH="$GEM_HOME:$(ruby -e 'puts Gem.default_dir')"
 export PATH="$GEM_HOME/bin:$PATH"
@@ -61,6 +79,7 @@ export BUNDLE_APP_CONFIG="$PWD/target/bundler-config"
 export BUNDLE_FROZEN=true
 gem install --no-document bundler --version 4.0.23
 bundle install
+bundle check
 tools/regenerate
 tools/regenerate --check
 ```
@@ -81,7 +100,8 @@ changes. Compare source/runtime digests and update provenance for each refresh.
 Known quick checks are `cargo fmt --all -- --check`, `bash -n tools/regenerate`,
 `tools/check-provenance`, and deterministic `tools/regenerate --check` once the
 generator is available. The provenance check compares snapshot, inventory and
-generated digests with the retained record.
+generated digests with the retained record. Run the offline helper integrity
+cases with `python3 -B tools/test-prepare-generator-lock.py`.
 
 Compilation and acceptance commands are:
 
@@ -92,7 +112,7 @@ cargo doc --locked --all-features --no-deps
 cargo package --locked
 ```
 
-Also verify the minimum supported compiler with Rust 1.95 and the committed
+Also verify the minimum supported compiler with Rust 1.95 and the same local
 lockfile. CI runs offline-schema generation and the default/blocking matrices;
 ordinary checks need no live API.
 
@@ -139,6 +159,15 @@ Run `release.yml` manually against a tag matching
 this repository after the normal CI matrix passes for that commit. It checks
 that the tag still points to the verified commit before publishing. Publication
 runs execute one at a time; branch pushes and pull requests do not publish.
+The reusable verification workflow exposes the lock artifact ID and SHA-256.
+The publishing job restores and verifies that lock before using it. Ordinary CI
+retains a package artifact before protected-environment approval. After approval,
+the publishing job runs native `cargo publish --dry-run --locked` without
+registry credentials and retains its candidate archive, lock and source/tool
+identity. It then obtains credentials for native `cargo publish --locked`.
+The workflow retains the archive produced by that command even on failure and
+requires its hash to match the candidate. Cargo may repack during publication;
+the workflow uses its native upload command.
 
 Both `release.yml` and `ci.yml` must exist on the default branch and at the
 tagged revision. GitHub cannot dispatch a workflow that exists only on a feature
@@ -184,7 +213,10 @@ then passes them only to the publish step. OIDC failure never falls back to an A
 Package checks and dry runs do not prove that registry authentication or upload
 works; those require the owner prerequisites and an authorized publication.
 
-If an upload fails, inspect registry state before retrying: a version may have
-been accepted even if the workflow failed. Never move a release tag or try to
+After upload, independently compare the exact registry version and original
+archive checksum with the retained actual publish archive. Observe docs.rs
+indexing separately. If an upload fails or the archives differ, preserve the
+original artifacts and inspect registry state before retrying: a version may
+have been accepted even if the workflow failed. Never move a release tag or
 overwrite a published version. To stop future publication, disable the workflow
 or remove its trusted publisher binding.

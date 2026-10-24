@@ -129,11 +129,13 @@ lifecycle inside `tokio::task::spawn_blocking`.
 See the [API reference](https://docs.rs/vpsadmin-client) for resources, actions
 and response types.
 
-The [async](https://github.com/vpsfreecz/vpsadmin-rust-client/blob/2026-10-18-rust-client-generator/examples/async_vps.rs)
-and [blocking](https://github.com/vpsfreecz/vpsadmin-rust-client/blob/2026-10-18-rust-client-generator/examples/blocking_vps.rs)
-examples read a VPS using `VPSADMIN_TOKEN`. From a repository checkout:
+The [async](https://github.com/vpsfreecz/vpsadmin-rust-client/blob/v0.1.0/examples/async_vps.rs)
+and [blocking](https://github.com/vpsfreecz/vpsadmin-rust-client/blob/v0.1.0/examples/blocking_vps.rs)
+examples read a VPS using `VPSADMIN_TOKEN`. From a repository checkout, prepare
+a local dependency lock once before running the examples:
 
 ```sh
+cargo generate-lockfile
 cargo run --locked --example async_vps -- 123
 cargo run --locked --features blocking --example blocking_vps -- 123
 ```
@@ -142,7 +144,7 @@ Set `VPSADMIN_URL` to use another server offering API 7.0. The crate version and
 API version are independent.
 
 The client is generated with [HaveAPI](https://github.com/vpsfreecz/haveapi).
-See [development and regeneration](https://github.com/vpsfreecz/vpsadmin-rust-client/blob/2026-10-18-rust-client-generator/docs/development.md)
+See [development and regeneration](https://github.com/vpsfreecz/vpsadmin-rust-client/blob/v0.1.0/docs/development.md)
 for source maintenance and release checks.
 
-MIT licensed; see [LICENSE](https://github.com/vpsfreecz/vpsadmin-rust-client/blob/2026-10-18-rust-client-generator/LICENSE).
+MIT licensed; see [LICENSE](https://github.com/vpsfreecz/vpsadmin-rust-client/blob/v0.1.0/LICENSE).

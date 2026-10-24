@@ -14,5 +14,9 @@ snapshot/provenance inspection and deterministic regeneration. Compilation,
 package checks and real-server acceptance are separate verification gates.
 Fixture tests mutate only an explicitly selected disposable loopback server.
 
+Do not track `Cargo.lock` for this library. Keep `flake.lock` tracked. Prepare a
+local Cargo lock with `cargo generate-lockfile`, then use `--locked` for
+verification and publishing. CI retains one actual lock for the whole run.
+
 There is no commit hook framework in this repository. Use informative commit
 messages and preserve the generated-source ownership boundary.

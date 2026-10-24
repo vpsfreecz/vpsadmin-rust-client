@@ -78,9 +78,78 @@ jobs:
         with:
           ref: ${{ needs.validate.outputs.revision }}
           persist-credentials: false
-      - uses: cachix/install-nix-action@448cde739abec1eaf0646249e3d25bb8d9bc7702 # v31.11.2
+      - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # 31.11.3
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ needs.verify.outputs.lock_artifact_id }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/cargo-lock-input
+      - name: Restore the exact run dependency lock
+        env:
+          LOCK_SHA256: ${{ needs.verify.outputs.lock_sha256 }}
+        run: |
+          nix develop --command tools/restore-cargo-lock "$RUNNER_TEMP/cargo-lock-input" \
+            --sha256 "$LOCK_SHA256"
       - name: Prepare committed publishing toolchain
         run: nix develop --command cargo --version
+      - name: Verify native publication without credentials
+        id: candidate
+        run: |
+          nix develop --command cargo publish --dry-run --locked
+          python3 - <<'PYTHON'
+          import hashlib, json, os, subprocess, tarfile, tomllib
+          from pathlib import Path
+          package = tomllib.loads(Path('Cargo.toml').read_text())['package']
+          name = package['name'] + '-' + package['version']
+          archive = Path('target/package') / (name + '.crate')
+          member_hashes = {}
+          with tarfile.open(archive, 'r:gz') as crate:
+              members = crate.getnames()
+              assert len(members) == len(set(members))
+              manifest = tomllib.loads(crate.extractfile(name + '/Cargo.toml').read().decode())
+              assert manifest['package']['name'] == package['name'] == 'vpsadmin-client'
+              assert manifest['package']['version'] == package['version']
+              for section in ('dependencies', 'dev-dependencies', 'build-dependencies'):
+                  for dependency, value in manifest.get(section, {}).items():
+                      assert not dependency.startswith('haveapi')
+                      assert not isinstance(value, dict) or not {'path', 'git'} & value.keys()
+              vcs = json.loads(crate.extractfile(name + '/.cargo_vcs_info.json').read())
+              assert vcs['git']['sha1'] == os.environ['GITHUB_SHA']
+              # Cargo omits the dirty flag for a clean checkout.
+              assert vcs['git'].get('dirty', False) is False
+              assert vcs['path_in_vcs'] == ''
+              assert name + '/Cargo.lock' in members
+              retained_members = ['Cargo.toml', 'Cargo.toml.orig', 'Cargo.lock', '.cargo_vcs_info.json']
+              retained_members += [p.relative_to(Path('.')).as_posix()
+                                   for p in Path('src/generated/runtime').glob('*.rs')]
+              assert len(retained_members) == 12
+              member_hashes = {p: hashlib.sha256(crate.extractfile(name + '/' + p).read()).hexdigest()
+                               for p in retained_members}
+              for source in Path('src').rglob('*.rs'):
+                  assert crate.extractfile(name + '/' + source.as_posix()).read() == source.read_bytes()
+          destination = Path(os.environ['RUNNER_TEMP']) / 'crate-candidate'
+          destination.mkdir()
+          # Move the retained dry-run archive so a later file proves native publish produced it.
+          retained = destination / archive.name
+          archive.rename(retained)
+          lock = Path('Cargo.lock').read_bytes()
+          (destination / 'Cargo.lock').write_bytes(lock)
+          identity = {'source': os.environ['GITHUB_SHA'], 'run_id': os.environ['GITHUB_RUN_ID'],
+                      'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+                      'crate_sha256': hashlib.sha256(retained.read_bytes()).hexdigest(),
+                      'crate_size': retained.stat().st_size, 'members_sha256': member_hashes,
+                      'vcs': vcs,
+                      'lock_sha256': hashlib.sha256(lock).hexdigest(),
+                      'cargo': subprocess.check_output(['nix', 'develop', '--command', 'cargo', '--version'], text=True).strip(),
+                      'rustc': subprocess.check_output(['nix', 'develop', '--command', 'rustc', '--version'], text=True).strip()}
+          (destination / 'identity.json').write_text(json.dumps(identity, indent=2) + '\n')
+          PYTHON
+      - name: Retain native dry-run candidate before authentication
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: crate-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/crate-candidate/
+          if-no-files-found: error
       - name: Check first-publication prerequisites
         if: inputs.authentication == 'bootstrap'
         env:
@@ -115,14 +184,53 @@ jobs:
       - name: Obtain trusted publishing token
         if: inputs.authentication == 'oidc'
         id: registry
-        uses: rust-lang/crates-io-auth-action@c6f97d42243bad5fab37ca0427f495c86d5b1a18 # v1.0.5
+        uses: rust-lang/crates-io-auth-action@3268eb413133e2960fa4ae0e963ca76380c54cd9 # v1.0.6
       - name: Publish using trusted publishing
+        id: publish_oidc
         if: inputs.authentication == 'oidc'
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.registry.outputs.token }}
         run: nix develop --command cargo publish --locked
       - name: Publish first crate version
+        id: publish_bootstrap
         if: inputs.authentication == 'bootstrap'
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_PUBLISH_BOOTSTRAP_TOKEN }}
         run: nix develop --command cargo publish --locked
+      - name: Preserve and compare actual native publish archive
+        if: ${{ always() && (steps.publish_oidc.outcome == 'success' || steps.publish_oidc.outcome == 'failure' || steps.publish_bootstrap.outcome == 'success' || steps.publish_bootstrap.outcome == 'failure') }}
+        env:
+          OIDC_OUTCOME: ${{ steps.publish_oidc.outcome }}
+          BOOTSTRAP_OUTCOME: ${{ steps.publish_bootstrap.outcome }}
+        run: |
+          python3 - <<'PYTHON'
+          import hashlib, json, os, shutil, tomllib
+          from pathlib import Path
+          package = tomllib.loads(Path('Cargo.toml').read_text())['package']
+          archive = Path('target/package') / (package['name'] + '-' + package['version'] + '.crate')
+          candidate = Path(os.environ['RUNNER_TEMP']) / 'crate-candidate'
+          destination = Path(os.environ['RUNNER_TEMP']) / 'crate-publish'
+          destination.mkdir()
+          identity = json.loads((candidate / 'identity.json').read_text())
+          identity.update(oidc_outcome=os.environ['OIDC_OUTCOME'],
+                          bootstrap_outcome=os.environ['BOOTSTRAP_OUTCOME'],
+                          actual_archive_present=archive.is_file())
+          lock = Path('Cargo.lock').read_bytes()
+          (destination / 'Cargo.lock').write_bytes(lock)
+          identity['actual_lock_sha256'] = hashlib.sha256(lock).hexdigest()
+          if archive.is_file():
+              shutil.copyfile(archive, destination / archive.name)
+              identity['actual_crate_sha256'] = hashlib.sha256(archive.read_bytes()).hexdigest()
+              identity['actual_crate_size'] = archive.stat().st_size
+          (destination / 'identity.json').write_text(json.dumps(identity, indent=2) + '\n')
+          assert identity['actual_lock_sha256'] == identity['lock_sha256'], 'Publication lock changed'
+          assert identity['actual_archive_present'], 'Native publish archive is missing; inspect logs and registry'
+          assert identity['actual_crate_sha256'] == identity['crate_sha256'], 'Native publish archive differs from candidate'
+          PYTHON
+      - name: Retain actual publication evidence even on failure
+        if: ${{ always() && (steps.publish_oidc.outcome == 'success' || steps.publish_oidc.outcome == 'failure' || steps.publish_bootstrap.outcome == 'success' || steps.publish_bootstrap.outcome == 'failure') }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: crate-publish-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/crate-publish/
+          if-no-files-found: error

@@ -6,22 +6,81 @@ on:
   pull_request:
   workflow_dispatch:
   workflow_call:
+    outputs:
+      lock_artifact_id:
+        description: Exact dependency lock artifact from this run
+        value: ${{ jobs.dependencies.outputs.lock_artifact_id }}
+      lock_sha256:
+        description: SHA-256 of the actual Cargo.lock used by all jobs
+        value: ${{ jobs.dependencies.outputs.lock_sha256 }}
 
 permissions:
   contents: read
 
 jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+    outputs:
+      lock_artifact_id: ${{ steps.retain.outputs.artifact-id }}
+      lock_sha256: ${{ steps.lock.outputs.sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # 31.11.3
+      - name: Check dependency lock transfer integrity
+        run: nix develop --command python3 -B tools/test-restore-cargo-lock.py
+      - name: Resolve one native dependency lock for this run
+        id: lock
+        run: |
+          test ! -e Cargo.lock
+          nix develop --command cargo generate-lockfile
+          python3 - <<'PYTHON'
+          import hashlib, json, os
+          from pathlib import Path
+          lock = Path('Cargo.lock').read_bytes()
+          digest = hashlib.sha256(lock).hexdigest()
+          destination = Path(os.environ['RUNNER_TEMP']) / 'cargo-lock-input'
+          destination.mkdir()
+          (destination / 'Cargo.lock').write_bytes(lock)
+          (destination / 'identity.json').write_text(json.dumps({
+              'source': os.environ['GITHUB_SHA'], 'run_id': os.environ['GITHUB_RUN_ID'],
+              'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'], 'lock_sha256': digest}, indent=2) + '\n')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'sha256={digest}\n')
+          PYTHON
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        id: retain
+        with:
+          name: cargo-lock-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/cargo-lock-input/
+          if-no-files-found: error
+
   client:
+    needs: dependencies
     runs-on: ubuntu-latest
     strategy:
       matrix:
         mode: [async, blocking]
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
-      - uses: cachix/install-nix-action@v31.11.2
-      - name: Check formatting
+          persist-credentials: false
+      - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # 31.11.3
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ needs.dependencies.outputs.lock_artifact_id }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/cargo-lock-input
+      - name: Restore the exact run dependency lock
+        env:
+          LOCK_SHA256: ${{ needs.dependencies.outputs.lock_sha256 }}
+        run: |
+          nix develop --command tools/restore-cargo-lock "$RUNNER_TEMP/cargo-lock-input" \
+            --sha256 "$LOCK_SHA256"
+      - name: Check formatting and provenance
         run: |
           nix develop --command cargo fmt --all -- --check
           nix develop --command tools/check-provenance
@@ -38,16 +97,39 @@ jobs:
         if: matrix.mode == 'blocking'
         run: |
           nix develop --command cargo doc --locked --all-features --no-deps
+          nix develop --command cargo package --list --locked > target/package-list.txt
           nix develop --command cargo package --locked
+      - name: Retain verified package and inventory
+        if: matrix.mode == 'blocking'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verified-package-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            target/package/*.crate
+            target/package-list.txt
+          if-no-files-found: error
 
   msrv:
+    needs: dependencies
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
-      - uses: cachix/install-nix-action@v31.11.2
-      - name: Check Rust 1.95 with the committed dependency lock
+          persist-credentials: false
+      - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # 31.11.3
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ needs.dependencies.outputs.lock_artifact_id }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/cargo-lock-input
+      - name: Restore the exact run dependency lock
+        env:
+          LOCK_SHA256: ${{ needs.dependencies.outputs.lock_sha256 }}
+        run: |
+          nix develop --command tools/restore-cargo-lock "$RUNNER_TEMP/cargo-lock-input" \
+            --sha256 "$LOCK_SHA256"
+      - name: Check Rust 1.95 with the exact run dependency lock
         run: |
           rustup toolchain install 1.95.0 --profile minimal
           rustup_bin=$(command -v rustup)
@@ -57,28 +139,48 @@ jobs:
   regeneration:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
-      - uses: cachix/install-nix-action@v31.11.2
-      - name: Read recorded generator revision
+          persist-credentials: false
+      - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # 31.11.3
+      - name: Read recorded generator inputs
         id: generator
         run: |
-          python3 - <<'PY' >> "$GITHUB_OUTPUT"
-          import json
-          revision = json.load(open('schema/provenance.json'))['generator']['revision']
-          assert len(revision) == 40 and all(c in '0123456789abcdef' for c in revision)
-          print(f'revision={revision}')
-          PY
-      - uses: actions/checkout@v7.0.1
+          python3 - <<'PYTHON' >> "$GITHUB_OUTPUT"
+          import json, re
+          generator = json.load(open('schema/provenance.json'))['generator']
+          assert re.fullmatch('[0-9a-f]{40}', generator['revision'])
+          print('revision=' + generator['revision'])
+          print('manifest_url=' + generator['release_manifest']['url'])
+          PYTHON
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: vpsfreecz/haveapi
           ref: ${{ steps.generator.outputs.revision }}
           path: .haveapi-generator
-      - name: Install generator dependencies and check saved source
+          persist-credentials: false
+      - name: Restore released Ruby lock and check saved source
         env:
-          BUNDLE_PATH: ${{ runner.temp }}/rust-generator-gems
+          MANIFEST_URL: ${{ steps.generator.outputs.manifest_url }}
         run: |
           export HAVEAPI_SOURCE="$GITHUB_WORKSPACE/.haveapi-generator"
-          nix develop --command bundle install --gemfile "$HAVEAPI_SOURCE/clients/rust/Gemfile"
-          nix develop --command tools/regenerate --check
+          curl --fail --location --proto '=https' --tlsv1.2 "$MANIFEST_URL" \
+            --output "$RUNNER_TEMP/haveapi-release-manifest.json"
+          nix develop --command tools/prepare-generator-lock "$RUNNER_TEMP/haveapi-release-manifest.json"
+          nix develop --command python3 -B tools/test-prepare-generator-lock.py
+          nix develop --command bash -euo pipefail -c '
+            export GEM_HOME="$GITHUB_WORKSPACE/target/generator-gems"
+            export GEM_PATH="$GEM_HOME:$(ruby -e "puts Gem.default_dir")"
+            export PATH="$GEM_HOME/bin:$PATH"
+            export BUNDLE_GEMFILE="$HAVEAPI_SOURCE/clients/rust/Gemfile"
+            export BUNDLE_PATH="$GITHUB_WORKSPACE/target/generator-bundle"
+            export BUNDLE_USER_HOME="$GITHUB_WORKSPACE/target/bundler-user"
+            export BUNDLE_APP_CONFIG="$GITHUB_WORKSPACE/target/bundler-config"
+            export BUNDLE_FROZEN=true
+            gem install --no-document bundler --version 4.0.23
+            bundle install
+            bundle check
+            tools/regenerate --check
+            tools/check-provenance
+          '
