@@ -28,11 +28,15 @@
       "rust_version": "1.95",
       "rustfmt_version": "rustfmt 1.9.0"
     },
+    "release_manifest": {
+      "sha256": "54816d85c307930d83d900b3329aa5a4ff5a55aafa06549839d95b47628a7c98",
+      "url": "https://github.com/vpsfreecz/haveapi/releases/download/v0.30.1/release-manifest.json"
+    },
     "repository": "https://github.com/vpsfreecz/haveapi",
-    "revision": "090a188cb4ef3477324718627f4ae3415d1c0975",
-    "ruby_dependency_lock_sha256": "7f51e5ea00157f4d215355acec5d95c2a8bcbb7d4600c5b34f5e1a338acbc1e4",
-    "source_sha256": "ee40aeee00e25aac87d007c241b29b519c7c22ccf3c027c1372e867809312892",
-    "version": "0.30.0"
+    "revision": "1c3c98f0d77e0b23c8da1a8937f25c5799864a3b",
+    "ruby_dependency_lock_sha256": "f35d5ad277861f14917651d564eb782a8c39764c48106c52d8e48b360bd58e43",
+    "source_sha256": "9b60df3bd861d20d8154888e76dd2679885c0eaf0dedd940c235e07075bbefdc",
+    "version": "0.30.1"
   },
   "protocol_version": "2.0",
   "runtime": {

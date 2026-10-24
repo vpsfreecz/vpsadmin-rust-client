@@ -36,6 +36,15 @@ require(config == provenance["generator"]["options"] == generated["config"],
         "generator options differ")
 require(provenance["generator"]["source_sha256"] == generated["generator_source_sha256"],
         "generator source digest differs")
+generator = provenance["generator"]
+require(generator["version"] == generated["generator_version"], "generator version differs")
+require(re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", generator["version"] or ""),
+        "record a released generator version")
+release_manifest = generator["release_manifest"]
+require(release_manifest["url"] == "https://github.com/vpsfreecz/haveapi/releases/download/"
+        f"v{generator['version']}/release-manifest.json", "unexpected release manifest URL")
+require(re.fullmatch(r"[0-9a-f]{64}", release_manifest["sha256"] or ""),
+        "record the original release manifest digest")
 require(provenance["generator"]["ruby_dependency_lock_sha256"]
         == generated["ruby_dependency_lock_sha256"], "Ruby dependency lock digest differs")
 require(provenance["runtime"]["sha256"] == generated["runtime_sha256"],

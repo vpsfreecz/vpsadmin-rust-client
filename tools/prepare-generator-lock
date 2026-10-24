@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+"""Restore the recorded Ruby lock from an explicitly supplied release manifest."""
+
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import stat
+import subprocess
+
+
+def require(condition, message):
+    if not condition:
+        raise SystemExit(message)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("manifest", type=Path, help="local official release-manifest.json")
+    args = parser.parse_args()
+    root = Path(__file__).resolve().parent.parent
+    generator = json.loads((root / "schema/provenance.json").read_bytes())["generator"]
+    record = generator["release_manifest"]
+    require(not args.manifest.is_symlink() and args.manifest.is_file(),
+            "Supply a regular local release manifest")
+    manifest_bytes = args.manifest.read_bytes()
+    require(hashlib.sha256(manifest_bytes).hexdigest() == record["sha256"],
+            "Release manifest digest differs")
+    manifest = json.loads(manifest_bytes)
+    version = generator["version"]
+    require(record["url"] == "https://github.com/vpsfreecz/haveapi/releases/download/"
+            f"v{version}/release-manifest.json", "Unexpected release manifest URL")
+    require(manifest["schema"] == 1 and manifest["source"] == generator["revision"]
+            and manifest["version"] == version and manifest["tag"] == f"v{version}",
+            "Release manifest source or version differs")
+    lock_bytes = manifest["dependency_locks"]["clients/rust/Gemfile.lock"].encode("utf-8")
+    require(hashlib.sha256(lock_bytes).hexdigest() == generator["ruby_dependency_lock_sha256"],
+            "Released Ruby lock digest differs")
+
+    require(bool(os.environ.get("HAVEAPI_SOURCE")), "Set HAVEAPI_SOURCE to the recorded checkout")
+    source = Path(os.environ["HAVEAPI_SOURCE"]).resolve(strict=True)
+
+    def git(*argv):
+        return subprocess.check_output(["git", "-C", str(source), *argv], text=True).strip()
+
+    require(Path(git("rev-parse", "--show-toplevel")).resolve() == source,
+            "HAVEAPI_SOURCE must be a checkout root")
+    require(git("rev-parse", "HEAD") == generator["revision"], "HaveAPI source revision differs")
+    require(not git("status", "--porcelain", "--untracked-files=all"),
+            "HaveAPI source must be clean")
+    relative = "clients/rust/Gemfile.lock"
+    require(not git("ls-files", "--", relative), "Generator Ruby lock must be untracked")
+    require(subprocess.run(["git", "-C", str(source), "check-ignore", "-q", "--", relative],
+                           check=False).returncode == 0, "Generator Ruby lock must be ignored")
+    for relative_dir in ("clients", "clients/rust"):
+        directory = source / relative_dir
+        require(directory.is_dir() and not directory.is_symlink(), "Unexpected generator directory")
+    lock = source / relative
+    if lock.exists() or lock.is_symlink():
+        require(not lock.is_symlink() and stat.S_ISREG(lock.stat().st_mode),
+                "Existing generator lock must be a regular file")
+        require(lock.read_bytes() == lock_bytes, "Existing generator lock conflicts with release")
+    else:
+        with lock.open("xb") as stream:
+            stream.write(lock_bytes)
+    print(f"Released generator Ruby lock matches: {generator['ruby_dependency_lock_sha256']}")
+
+
+if __name__ == "__main__":
+    main()
