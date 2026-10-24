@@ -697,12 +697,12 @@
     "runtime/validation.rs": "11fbd50d00f13a2d9368c8fa91bc99f88289d84a213219cbbc1f199387108d2c"
   },
   "format": 1,
-  "generator_source_sha256": "ee40aeee00e25aac87d007c241b29b519c7c22ccf3c027c1372e867809312892",
-  "generator_version": "0.30.0",
+  "generator_source_sha256": "9b60df3bd861d20d8154888e76dd2679885c0eaf0dedd940c235e07075bbefdc",
+  "generator_version": "0.30.1",
   "owner": "haveapi-rust-client",
   "profile": "public-live-api-7.0",
   "protocol_version": "2.0",
-  "ruby_dependency_lock_sha256": "7f51e5ea00157f4d215355acec5d95c2a8bcbb7d4600c5b34f5e1a338acbc1e4",
+  "ruby_dependency_lock_sha256": "f35d5ad277861f14917651d564eb782a8c39764c48106c52d8e48b360bd58e43",
   "runtime_sha256": "9c50b8167a8b82118ba42372633e3b004276ba49fbdfed75d4979a913feea739",
   "schema_sha256": "70f89335e15263fd7177f29a00fab04b5ff1923c6922dfd318b07c3ae922fb8d"
 }
