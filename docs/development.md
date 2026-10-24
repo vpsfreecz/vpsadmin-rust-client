@@ -162,12 +162,24 @@ runs execute one at a time; branch pushes and pull requests do not publish.
 The reusable verification workflow exposes the lock artifact ID and SHA-256.
 The publishing job restores and verifies that lock before using it. Ordinary CI
 retains a package artifact before protected-environment approval. After approval,
-the publishing job runs native `cargo publish --dry-run --locked` without
-registry credentials and retains its candidate archive, lock and source/tool
-identity. It then obtains credentials for native `cargo publish --locked`.
-The workflow retains the archive produced by that command even on failure and
-requires its hash to match the candidate. Cargo may repack during publication;
-the workflow uses its native upload command.
+`tools/publish-crate candidate` runs native `cargo publish --dry-run --locked`
+without registry credentials. The helper retains the native archive, input
+lock, source revision and tool identity. It sets explicit build and target
+directories and requires Cargo 1.98.0 revision `797e8a9bc`. That revision leaves
+its publish archive in the build directory's `package/tmp-crate` subdirectory.
+This path is a Cargo implementation detail guarded by the version check;
+standalone `cargo package` uses a different output location.
+
+The protected publish step supplies credentials to `tools/publish-crate publish`,
+which runs native `cargo publish --locked`. After each native command exits,
+the helper preserves its archive before validation. It keeps candidate and
+publication archives separately and requires their SHA-256 hashes to match.
+The helper records the native exit status and retains any produced archive,
+even when the command fails; if no archive exists, it records that absence.
+An archive alone does not prove an upload occurred. The workflow uploads the
+report even if a started helper fails. Runner loss can prevent capture or
+artifact upload. Both modes preserve Cargo's original bytes without repacking
+or substituting the ordinary CI package.
 
 Both `release.yml` and `ci.yml` must exist on the default branch and at the
 tagged revision. GitHub cannot dispatch a workflow that exists only on a feature

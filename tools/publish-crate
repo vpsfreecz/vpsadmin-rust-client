@@ -1,0 +1,293 @@
+#!/usr/bin/env python3
+"""Retain the exact archive produced by the pinned native Cargo publish command."""
+
+import argparse
+import gzip
+import hashlib
+import io
+import json
+import os
+from pathlib import Path, PurePosixPath
+import re
+import shutil
+import stat
+import subprocess
+import sys
+import tarfile
+import tomllib
+
+
+CARGO_VERSION = "cargo 1.98.0 (797e8a9bc 2026-08-05)"
+# This revision uploads build-dir/package/tmp-crate/NAME.crate, not target/package.
+CARGO_REVISION = "797e8a9bca276c1c9f9f738d2a20f484fa4eea9d"
+LIMIT = 256 * 1024 * 1024
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def regular(path):
+    require(stat.S_ISREG(path.lstat().st_mode), "Expected a regular file")
+    return path.read_bytes()
+
+
+def directory_path(path):
+    require(path.is_absolute() and ".." not in path.parts, "Use an absolute owned path")
+    for entry in (path, *path.parents):
+        require(not entry.is_symlink(), "Owned paths must not contain symlinks")
+    return path
+
+
+def output(args):
+    return subprocess.check_output(args, text=True).strip()
+
+
+def source_state(root, source, lock_sha):
+    require(output(["git", "rev-parse", "HEAD"]) == source, "Source revision differs")
+    require(output(["git", "status", "--porcelain", "--untracked-files=all"]) == "",
+            "Source checkout must be clean")
+    lock = regular(root / "Cargo.lock")
+    require(digest(lock) == lock_sha, "Root dependency lock differs")
+    manifest = regular(root / "Cargo.toml")
+    package = tomllib.loads(manifest.decode())["package"]
+    require(package["name"] == "vpsadmin-client"
+            and re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?",
+                             package["version"]), "Unexpected package identity")
+    require(package["edition"] == "2024" and package["rust-version"] == "1.95",
+            "Unexpected package edition or minimum Rust version")
+    rust = {p.relative_to(root).as_posix(): digest(regular(p))
+            for directory in (root / "src", root / "examples") for p in directory.rglob("*.rs")}
+    ownership = regular(root / "src/generated/.haveapi-generated.json")
+    return {"manifest": manifest, "lock": lock, "package": package,
+            "rust": rust, "ownership": ownership}
+
+
+def reject_dependencies(obj):
+    for key, value in obj.items():
+        if key in ("dependencies", "dev-dependencies", "build-dependencies"):
+            for name, dep in value.items():
+                require("haveapi" not in name.lower()
+                        and (not isinstance(dep, dict) or not {"path", "git"} & dep.keys()),
+                        "HaveAPI, path or Git dependency is not publishable here")
+        elif isinstance(value, dict):
+            reject_dependencies(value)
+
+
+def inspect_archive(data, state, source):
+    require(len(data) <= 64 * 1024 * 1024, "Archive compressed size exceeds limit")
+    with gzip.GzipFile(fileobj=io.BytesIO(data)) as gz:
+        unpacked = gz.read(LIMIT + 1)
+    require(len(unpacked) <= LIMIT, "Archive expanded size exceeds limit")
+    package = state["package"]
+    prefix = package["name"] + "-" + package["version"] + "/"
+    members = {}
+    seen = set()
+    total = 0
+    with tarfile.open(fileobj=io.BytesIO(unpacked), mode="r:") as archive:
+        entries = archive.getmembers()
+        require(len(entries) <= 5000, "Archive member count exceeds limit")
+        for entry in entries:
+            name = entry.name
+            path = PurePosixPath(name)
+            require(name.startswith(prefix) and not path.is_absolute()
+                    and not {"", ".", ".."} & set(name.rstrip("/").split("/"))
+                    and "\\" not in name and "\0" not in name, "Unsafe archive member path")
+            canonical = name.rstrip("/")
+            require(canonical not in seen, "Duplicate archive member")
+            seen.add(canonical)
+            require(entry.isfile() or entry.isdir(), "Archive member must be regular")
+            total += entry.size
+            require(total <= LIMIT, "Archive member size exceeds limit")
+            if entry.isfile():
+                members[name[len(prefix):]] = archive.extractfile(entry).read()
+    require(members["Cargo.toml.orig"] == state["manifest"], "Original manifest differs")
+    manifest = tomllib.loads(members["Cargo.toml"].decode())
+    for key in ("name", "version", "edition", "rust-version"):
+        require(manifest["package"][key] == package[key], "Packaged identity differs")
+    reject_dependencies(manifest)
+    reject_dependencies(tomllib.loads(state["manifest"].decode()))
+    # Cargo may normalize this lock. Record its digest separately from the input.
+    tomllib.loads(members["Cargo.lock"].decode())
+    vcs = json.loads(members[".cargo_vcs_info.json"])
+    require(vcs["git"]["sha1"] == source and vcs["git"].get("dirty", False) is False
+            and vcs["path_in_vcs"] == "", "Packaged VCS identity differs")
+    require({n: digest(b) for n, b in members.items() if n.endswith(".rs")} == state["rust"],
+            "Packaged Rust differs from source")
+    require(members["src/generated/.haveapi-generated.json"] == state["ownership"],
+            "Generated ownership metadata differs")
+    runtime = {n: digest(b) for n, b in members.items() if n.startswith("src/generated/runtime/")}
+    require(len(runtime) == 8, "Expected eight runtime files")
+    hashes = {n: digest(members[n]) for n in
+              ("Cargo.toml", "Cargo.toml.orig", "Cargo.lock", ".cargo_vcs_info.json")}
+    return {"members_sha256": {**hashes, **runtime}, "vcs": vcs,
+            "package_members": len(members), "packaged_rust_files": len(state["rust"]),
+            "all_packaged_rust_equal": True}
+
+
+def tools():
+    cargo = output(["cargo", "--version"])
+    require(cargo == CARGO_VERSION, "Unsupported Cargo archive contract")
+    cargo_path = Path(shutil.which("cargo")).resolve()
+    rustc_path = Path(shutil.which("rustc")).resolve()
+    return {"cargo": cargo, "cargo_revision": CARGO_REVISION,
+            "rustc": output(["rustc", "--version"]),
+            "cargo_binary_sha256": digest(regular(cargo_path)),
+            "rustc_binary_sha256": digest(regular(rustc_path))}
+
+
+def candidate_identity(directory, source, lock_sha, tool, state, run):
+    directory_path(directory)
+    require(directory.is_dir() and {p.name for p in directory.iterdir()} == {
+        "identity.json", "Cargo.lock", state["package"]["name"] + "-"
+        + state["package"]["version"] + ".crate"}, "Candidate evidence inventory differs")
+    identity = json.loads(regular(directory / "identity.json"))
+    require(identity["mode"] == "candidate" and identity["validation"] == "passed"
+            and identity["native_exit"] == 0, "Candidate did not pass native validation")
+    for key, expected in {"source": source, "lock_sha256": lock_sha, "tool": tool,
+                          **run}.items():
+        require(identity[key] == expected, "Candidate source, tool, lock or run differs")
+    require(digest(regular(directory / "Cargo.lock")) == lock_sha, "Candidate lock differs")
+    require(identity["archive_name"] == state["package"]["name"] + "-"
+            + state["package"]["version"] + ".crate", "Candidate archive name differs")
+    archive = regular(directory / identity["archive_name"])
+    require(digest(archive) == identity["crate_sha256"] and len(archive) == identity["crate_size"],
+            "Candidate archive differs")
+    require(inspect_archive(archive, state, source) == identity["archive_validation"],
+            "Candidate validation receipt differs")
+    return identity
+
+
+def capture(scratch, evidence, report):
+    # Preserve native bytes before any content oracle, including after child failure.
+    report["actual_archive_present"] = scratch.exists() or scratch.is_symlink()
+    if not report["actual_archive_present"]:
+        return None
+    directory_path(scratch)
+    regular(scratch)  # Never follow a replaced scratch symlink or adopt a special file.
+    destination = evidence / report["archive_name"]
+    require(not destination.exists() and not destination.is_symlink(),
+            "Archive evidence already exists")
+    scratch.rename(destination)
+    data = regular(destination)
+    report.update(crate_sha256=digest(data), crate_size=len(data))
+    return data
+
+
+def execute(args):
+    root = Path.cwd()
+    directory_path(args.evidence_dir)
+    require(not args.evidence_dir.is_relative_to(root),
+            "Evidence must be outside the checkout")
+    args.evidence_dir.mkdir()  # Exclusive: never overwrite an earlier attempt's evidence.
+    report = {"mode": args.mode, "source": args.source, "lock_sha256": args.lock_sha256,
+              "work_dir": str(args.work_dir),
+              "run_id": os.environ.get("GITHUB_RUN_ID"),
+              "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+              "native_attempted": False, "native_exit": None,
+              "actual_archive_present": False, "validation": "failed",
+              "hard_runner_loss_retention_guaranteed": False}
+    native_exit = None
+    try:
+        require(re.fullmatch("[0-9a-f]{40}", args.source)
+                and re.fullmatch("[0-9a-f]{64}", args.lock_sha256), "Invalid source or lock digest")
+        if args.mode == "candidate":
+            require(not any(os.environ.get(n) for n in
+                            ("CARGO_REGISTRY_TOKEN", "CARGO_REGISTRIES_CRATES_IO_TOKEN")),
+                    "Candidate must not receive a publish credential")
+            require(args.candidate_dir is None, "Candidate cannot adopt an earlier archive")
+        directory_path(args.work_dir)
+        require(not args.work_dir.is_relative_to(root) and not args.evidence_dir.is_relative_to(root)
+                and not args.work_dir.is_relative_to(args.evidence_dir)
+                and not args.evidence_dir.is_relative_to(args.work_dir),
+                "Work and evidence must be disjoint owned paths outside the checkout")
+        state = source_state(root, args.source, args.lock_sha256)
+        tool = tools()
+        report["tool"] = tool
+        report["archive_name"] = state["package"]["name"] + "-" + state["package"]["version"] + ".crate"
+        run = {k: report[k] for k in ("run_id", "run_attempt")}
+        if args.mode == "candidate":
+            require(not args.work_dir.exists(), "Candidate work directory already exists")
+            args.work_dir.mkdir()
+        else:
+            require(args.candidate_dir is not None, "Publish requires retained candidate")
+            report["candidate"] = candidate_identity(args.candidate_dir, args.source,
+                                                      args.lock_sha256, tool, state, run)
+            require(report["candidate"]["work_dir"] == str(args.work_dir),
+                    "Publish work directory differs from candidate")
+            require(args.work_dir.is_dir(), "Publish work directory is missing")
+        build = args.work_dir / "build"
+        target = args.work_dir / "target"
+        for path in (build, target, build / "package", build / "package/tmp-crate"):
+            directory_path(path)
+            require(not path.exists() or path.is_dir(), "Unexpected scratch directory entry")
+        scratch = build / "package/tmp-crate" / report["archive_name"]
+        require(not scratch.exists() and not scratch.is_symlink(), "Stale or symlink scratch archive")
+        (args.evidence_dir / "Cargo.lock").write_bytes(state["lock"])
+        argv = ["cargo", "--config", "build.build-dir=" + json.dumps(str(build)),
+                "publish", "--locked", "--target-dir", str(target)]
+        if args.mode == "candidate":
+            argv.append("--dry-run")
+        report["scratch_path"] = str(scratch)
+        report["command"] = argv
+        report["native_attempted"] = True
+        try:
+            native_exit = subprocess.run(argv, check=False).returncode
+            report["native_exit"] = native_exit
+        finally:
+            data = capture(scratch, args.evidence_dir, report)
+        require(data is not None, "Native archive is missing")
+        report["archive_validation"] = inspect_archive(data, state, args.source)
+        require(source_state(root, args.source, args.lock_sha256) == state and tools() == tool,
+                "Source, root lock or tool changed during native command")
+        if args.mode == "publish":
+            # Re-read the candidate after the child as well; neither side may change.
+            again = candidate_identity(args.candidate_dir, args.source, args.lock_sha256,
+                                       tool, state, run)
+            require(again == report["candidate"], "Candidate changed during publication")
+            require(report["crate_sha256"] == again["crate_sha256"],
+                    "Native publish archive differs from candidate")
+        require(native_exit == 0, "Native Cargo command failed")
+        report["validation"] = "passed"
+    except Exception as error:
+        # Error messages are fixed by this helper; never emit subprocess ENV or credentials.
+        report["error"] = type(error).__name__
+        if isinstance(error, ValueError):
+            report["reason"] = str(error)
+    finally:
+        status = native_exit if native_exit else (0 if report["validation"] == "passed" else 1)
+        # A secondary report-write failure must not mask a nonzero native child exit.
+        try:
+            with (args.evidence_dir / "identity.json").open("x") as stream:
+                stream.write(json.dumps(report, indent=2) + "\n")
+        except Exception:
+            print("Unable to retain native publication report", file=sys.stderr)
+            status = native_exit if native_exit else 1
+    if report["validation"] != "passed":
+        print("Native publication evidence validation failed", file=sys.stderr)
+    return status
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("mode", choices=("candidate", "publish"))
+    parser.add_argument("--source", required=True)
+    parser.add_argument("--lock-sha256", required=True)
+    parser.add_argument("--work-dir", required=True, type=Path)
+    parser.add_argument("--evidence-dir", required=True, type=Path)
+    parser.add_argument("--candidate-dir", type=Path)
+    args = parser.parse_args()
+    try:
+        return execute(args)
+    except Exception:
+        print("Unable to prepare exclusive publication evidence", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
