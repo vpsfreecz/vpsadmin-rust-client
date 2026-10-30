@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.sha }}
-      - uses: cachix/install-nix-action@v31.11.2
+      - uses: cachix/install-nix-action@v31.11.3
       - name: Check formatting
         run: |
           nix develop --command cargo fmt --all -- --check
@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.sha }}
-      - uses: cachix/install-nix-action@v31.11.2
+      - uses: cachix/install-nix-action@v31.11.3
       - name: Check Rust 1.95 with the committed dependency lock
         run: |
           rustup toolchain install 1.95.0 --profile minimal
@@ -60,7 +60,7 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.sha }}
-      - uses: cachix/install-nix-action@v31.11.2
+      - uses: cachix/install-nix-action@v31.11.3
       - name: Read recorded generator revision
         id: generator
         run: |
@@ -76,9 +76,32 @@ jobs:
           ref: ${{ steps.generator.outputs.revision }}
           path: .haveapi-generator
       - name: Install generator dependencies and check saved source
-        env:
-          BUNDLE_PATH: ${{ runner.temp }}/rust-generator-gems
         run: |
+          nix develop --command bash -euo pipefail <<'SH'
+          tools/check-provenance
           export HAVEAPI_SOURCE="$GITHUB_WORKSPACE/.haveapi-generator"
-          nix develop --command bundle install --gemfile "$HAVEAPI_SOURCE/clients/rust/Gemfile"
-          nix develop --command tools/regenerate --check
+          revision=$(python3 -c 'import json; print(json.load(open("schema/provenance.json"))["generator"]["revision"])')
+          test "$(git -C "$HAVEAPI_SOURCE" rev-parse HEAD)" = "$revision"
+          lock="$HAVEAPI_SOURCE/clients/rust/Gemfile.lock"
+          test ! -L "$lock"
+          if [ -e "$lock" ]; then
+            cmp schema/generator.Gemfile.lock "$lock"
+          else
+            cp schema/generator.Gemfile.lock "$lock"
+          fi
+          export GEM_HOME="$RUNNER_TEMP/rust-generator-gems"
+          export GEM_PATH="$GEM_HOME:$(ruby -e 'puts Gem.default_dir')"
+          export PATH="$GEM_HOME/bin:$PATH"
+          export BUNDLE_GEMFILE="$HAVEAPI_SOURCE/clients/rust/Gemfile"
+          export BUNDLE_PATH="$RUNNER_TEMP/rust-generator-bundle"
+          export BUNDLE_USER_HOME="$RUNNER_TEMP/rust-bundler-user"
+          export BUNDLE_APP_CONFIG="$RUNNER_TEMP/rust-bundler-config"
+          export BUNDLE_FROZEN=true
+          gem install --no-document bundler --version 4.0.23
+          bundle install
+          bundle check
+          cmp schema/generator.Gemfile.lock "$lock"
+          python3 -B tools/test-regenerate.py
+          tools/regenerate --check
+          cmp schema/generator.Gemfile.lock "$lock"
+          SH

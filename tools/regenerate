@@ -5,15 +5,69 @@ client_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
 : "${HAVEAPI_SOURCE:?Set HAVEAPI_SOURCE to the recorded HaveAPI source checkout}"
 generator_root=$(cd -- "$HAVEAPI_SOURCE/clients/rust" && pwd -P)
 export BUNDLE_GEMFILE="$generator_root/Gemfile"
+export BUNDLE_FROZEN=true
+export BUNDLE_AUTO_INSTALL=false
 
 if [[ $# -gt 1 || ( $# -eq 1 && $1 != --check ) ]]; then
   printf '%s\n' 'usage: tools/regenerate [--check]' >&2
   exit 2
 fi
 
-exec bundle exec ruby -I "$generator_root/lib" \
-  "$generator_root/bin/haveapi-rust-client" generate \
+bundler_version=$(python3 - "$client_root" "$HAVEAPI_SOURCE" <<'PY'
+import hashlib
+import json
+import pathlib
+import subprocess
+import sys
+
+client, source = (pathlib.Path(arg).resolve() for arg in sys.argv[1:])
+record = json.loads((client / "schema/provenance.json").read_text())["generator"]
+
+
+def require(condition, message):
+    if not condition:
+        raise SystemExit(message)
+
+
+def git(*args):
+    return subprocess.check_output(["git", "-C", str(source), *args], text=True).strip()
+
+
+require(pathlib.Path(git("rev-parse", "--show-toplevel")) == source,
+        "HAVEAPI_SOURCE must be a HaveAPI checkout root")
+require(git("rev-parse", "HEAD") == record["revision"], "HaveAPI revision differs from provenance")
+require(not git("status", "--porcelain=v1", "--untracked-files=all", "--",
+                "VERSION", "clients/rust", "clients/ruby"), "HaveAPI generator sources are dirty")
+for lock in (client / "schema/generator.Gemfile.lock", source / "clients/rust/Gemfile.lock"):
+    require(lock.is_file() and not lock.is_symlink(), f"prepare the recorded regular lock file: {lock}")
+    require(hashlib.sha256(lock.read_bytes()).hexdigest() == record["ruby_dependency_lock_sha256"],
+            f"Ruby dependency lock differs from provenance: {lock}")
+print(record["tooling"]["bundler"])
+PY
+)
+
+exec bundle "_${bundler_version}_" exec ruby -I "$HAVEAPI_SOURCE/clients/ruby/lib" -I "$generator_root/lib" \
+  - "$client_root" "$generator_root/bin/haveapi-rust-client" generate \
   --schema "$client_root/schema/api-7.0.json" \
   --api-version 7.0 \
   --config "$client_root/generator.toml" \
-  --output "$client_root/src/generated" "$@"
+  --output "$client_root/src/generated" "$@" <<'RUBY'
+require 'json'
+require 'haveapi/rust_client'
+
+client_root = ARGV.shift
+record = JSON.parse(File.read(File.join(client_root, 'schema/provenance.json')))
+%w[haveapi-client haveapi-rust-client].each do |name|
+  component = name == 'haveapi-client' ? 'ruby' : 'rust'
+  expected = File.join(ENV.fetch('HAVEAPI_SOURCE'), 'clients', component)
+  actual = Gem.loaded_specs.fetch(name).full_gem_path
+  abort "loaded #{name} outside HAVEAPI_SOURCE" unless File.realpath(actual) == File.realpath(expected)
+end
+generator = HaveAPI::RustClient::Generator.allocate
+unless generator.send(:generator_digest) == record.fetch('generator').fetch('source_sha256') &&
+       HaveAPI::Schema.source_identity == record.fetch('generator').fetch('shared_schema')
+  abort 'loaded generator/shared schema sources differ from provenance'
+end
+abort 'maintained runtime differs from provenance' unless generator.runtime_digest == record.fetch('runtime').fetch('sha256')
+load ARGV.shift
+RUBY

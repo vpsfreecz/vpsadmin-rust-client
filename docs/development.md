@@ -42,15 +42,33 @@ headers, cookies, credentials, login responses or transient tokens.
 
 ## Offline generation
 
-Obtain the HaveAPI source revision recorded in provenance. Install its
-`clients/rust/Gemfile` dependencies using its committed lockfile; the generator
-and Ruby dependencies are development tools, not crate runtime dependencies.
-The generator uses Fiddle for atomic directory exchange. The Nix shell supplies
-libffi to build its native extension. From this repository, enter `nix develop`
-and prepare a separate Ruby 3.3 bundle frozen to the recorded lockfile:
+Obtain a clean, separate HaveAPI checkout at the exact revision recorded in
+provenance. Use a checkout you own: dependency preparation writes its component
+lock and must not change another developer's checkout. HaveAPI ignores library
+locks upstream. This repository retains the prepared Rust component lock in
+`schema/generator.Gemfile.lock`; provenance and the generated ownership manifest
+bind its SHA-256. Restore those exact bytes before installing dependencies, and
+stop if an existing lock differs.
+
+The generator and its Ruby dependencies are development tools. Crate consumers
+do not need them. The generator uses Fiddle for atomic directory exchange, and
+the Nix shell supplies libffi to build its native extension. Enter `nix develop`
+and prepare an isolated Ruby 3.3 bundle frozen to the retained lock:
 
 ```sh
+(
+set -euo pipefail
 export HAVEAPI_SOURCE=/path/to/recorded/haveapi
+tools/check-provenance
+revision=$(python3 -c 'import json; print(json.load(open("schema/provenance.json"))["generator"]["revision"])')
+test "$(git -C "$HAVEAPI_SOURCE" rev-parse HEAD)" = "$revision"
+lock="$HAVEAPI_SOURCE/clients/rust/Gemfile.lock"
+test ! -L "$lock"
+if [ -e "$lock" ]; then
+  cmp schema/generator.Gemfile.lock "$lock"
+else
+  cp schema/generator.Gemfile.lock "$lock"
+fi
 export GEM_HOME="$PWD/target/generator-gems"
 export GEM_PATH="$GEM_HOME:$(ruby -e 'puts Gem.default_dir')"
 export PATH="$GEM_HOME/bin:$PATH"
@@ -61,27 +79,40 @@ export BUNDLE_APP_CONFIG="$PWD/target/bundler-config"
 export BUNDLE_FROZEN=true
 gem install --no-document bundler --version 4.0.23
 bundle install
+bundle check
+cmp schema/generator.Gemfile.lock "$lock"
+python3 -B tools/test-regenerate.py
 tools/regenerate
 tools/regenerate --check
+cmp schema/generator.Gemfile.lock "$lock"
+)
 ```
 
-Keep the recorded HaveAPI checkout and its lockfile unchanged. Do not reuse its
-Ruby 3.4 native gems or write Bundler configuration into that checkout. Generation
-uses this crate's exact `rustfmt 1.9.0`; the HaveAPI development formatter may be
-newer and must not replace it.
+Keep the recorded HaveAPI checkout and lock unchanged. Do not reuse its Ruby 3.4
+native gems or write Bundler configuration into that checkout. Generation uses
+this crate's exact `rustfmt 1.9.0`; the HaveAPI development formatter may be newer.
+If frozen installation fails on a supported Ruby/platform, investigate the
+recorded dependency graph. Preparing a different graph requires an explicit
+provenance refresh.
 
-Generation reads the saved snapshot without contacting the API. `--check` is
-read-only and reports drift. Regeneration replaces only `src/generated`; it
-preserves handwritten package files. Review manifest requirements when the
+Generation reads the saved snapshot without contacting the API. Both commands
+verify the source revision and cleanliness, retained and installed locks, loaded
+generator and shared-schema sources, and maintained runtime against provenance.
+Neither installs dependencies, restores locks or resolves a graph. `--check`
+reports drift without writing files. Regeneration replaces only `src/generated`
+and preserves handwritten package files. Review manifest requirements when the
 generator changes. Commit generated refreshes separately from handwritten
-changes. Compare source/runtime digests and update provenance for each refresh.
+changes, and update source, lock and shared-schema identities in provenance for
+each refresh.
 
 ## Verification
 
 Known quick checks are `cargo fmt --all -- --check`, `bash -n tools/regenerate`,
 `tools/check-provenance`, and deterministic `tools/regenerate --check` once the
-generator is available. The provenance check compares snapshot, inventory and
-generated digests with the retained record.
+generator is available. The provenance check compares snapshot, inventory,
+retained dependency lock and generated digests with the recorded values.
+The preparation block also runs `python3 -B tools/test-regenerate.py` for
+refusal checks in disposable source copies.
 
 Compilation and acceptance commands are:
 
