@@ -37,19 +37,19 @@
       "rustfmt_version": "rustfmt 1.9.0"
     },
     "repository": "https://github.com/vpsfreecz/haveapi",
-    "revision": "0e7166a0f8f15827bfac051666a53bf449e999ec",
-    "ruby_dependency_lock_sha256": "86c1d8b1846dee4046e59518585a6ab0a52b6c66f1394729ab767c0411dd942c",
+    "revision": "1ef9b204ba45bb261d3334be5c555cc1856b713b",
+    "ruby_dependency_lock_sha256": "061f5e4e0f3cb48d529a7914eb087cabda9889d4200a1af9d0d70af7908b5459",
     "shared_schema": {
       "package_name": "haveapi-client",
-      "source_sha256": "e12f7989a028bb529f4a78a510af8e09411bbeb5eec9c782feb1fbf20862533c",
-      "version": "0.32.0"
+      "source_sha256": "d704e6c155f9f2ec82bdf627857bdc23aa08a1d2133806df1f8ed5beb2d8c439",
+      "version": "0.32.2"
     },
-    "source_sha256": "923716b5f3eaca6352d82c8cbd8c194c9a8e4a7a743cf0cb8ce7c491dd08ddce",
+    "source_sha256": "7f941d42626a967296ae1c8e897ef7c9b249858f564e98a3d41824fbf10d15a1",
     "tooling": {
       "bundler": "4.0.23",
       "ruby": "3.3.10"
     },
-    "version": "0.32.0"
+    "version": "0.32.2"
   },
   "protocol_version": "2.0",
   "runtime": {

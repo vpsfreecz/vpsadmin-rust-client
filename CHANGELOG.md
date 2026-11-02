@@ -4,8 +4,8 @@
 
 - Retain the Rust generator dependency lock and verify source, shared-schema and
   runtime identities before offline regeneration.
-- Refresh HaveAPI 0.32.0 provenance. Generated API and runtime files are
-  unchanged, so no crate release is prepared.
+- Refresh HaveAPI 0.32.2 generator provenance and its released dependency lock.
+  Generated API and runtime code is unchanged.
 
 ## 0.1.0
 
