@@ -25,6 +25,7 @@ jobs:
         run: |
           nix develop --command cargo fmt --all -- --check
           nix develop --command tools/check-provenance
+          nix develop --command python3 -B tools/test-provenance.py
       - name: Test client and examples
         env:
           MODE: ${{ matrix.mode }}

@@ -14,6 +14,9 @@ snapshot = json.loads(snapshot_path.read_text())
 inventory = json.loads((root / "schema/inventory.json").read_text())
 generated = json.loads((root / "src/generated/.haveapi-generated.json").read_text())
 config = tomllib.loads((root / "generator.toml").read_text())
+source_path = root / "schema/source-provenance.json"
+source = json.loads(source_path.read_text())
+source_record = provenance["source_export"]
 
 
 def require(condition, message):
@@ -25,11 +28,32 @@ digest = hashlib.sha256(snapshot_path.read_bytes()).hexdigest()
 require(digest == provenance["schema_sha256"] == inventory["schema_sha256"]
         == generated["schema_sha256"], "schema digests differ")
 require(snapshot["api_version"] == provenance["api_version"] == "7.0", "API version differs")
-require(snapshot["profile"] == provenance["capture"]["profile"]
-        == generated["profile"], "capture profile differs")
+require(snapshot["profile"] == source_record["profile"] == source["profile"]
+        == generated["profile"] == "vpsadmin-full-fixture", "source profile differs")
 require(snapshot["protocol_version"] == provenance["protocol_version"]
-        == generated["protocol_version"], "protocol version differs")
-require(provenance["capture"]["authenticated"] is False, "unexpected authenticated capture")
+        == source["protocol_version"] == generated["protocol_version"], "protocol version differs")
+require(source["api_version"] == snapshot["api_version"], "source API version differs")
+require(hashlib.sha256(source_path.read_bytes()).hexdigest()
+        == source_record["provenance_sha256"], "source provenance digest differs")
+require(source["acquisition"] == "mounted-source", "unexpected source acquisition")
+require(source["locale"] == "en", "unexpected source locale")
+require(snapshot["mount_path"] == "/"
+        and snapshot["source_url"] == "https://schema.invalid/v7.0/", "source mount differs")
+require(source["source"]["repository"] == "git@github.com:vpsfreecz/vpsadmin.git",
+        "unexpected API source repository")
+require(re.fullmatch(r"[0-9a-f]{40}", source_record["revision"] or "")
+        and source_record["revision"] == source["source"]["revision"], "API source revision differs")
+require(source["schema_sha256"] == digest, "source schema digest differs")
+tooling_lock = root / "schema/tooling.Gemfile.lock"
+require(tooling_lock.is_file() and not tooling_lock.is_symlink(), "retain a regular exporter dependency lock")
+require(hashlib.sha256(tooling_lock.read_bytes()).hexdigest()
+        == source["tooling"]["lock_sha256"], "exporter dependency lock differs")
+require(source["inputs"] and all(re.fullmatch(r"[0-9a-f]{64}", value or "")
+                                for value in source["inputs"].values()), "invalid source input hashes")
+require(len(source["plugins"]) == 6
+        and sorted(source["plugins"]) == provenance["coverage"]["plugins"]
+        and all(re.fullmatch(r"[0-9a-f]{64}", plugin["source_sha256"] or "")
+                for plugin in source["plugins"].values()), "source plugin inventory differs")
 require(re.fullmatch(r"[0-9a-f]{40}", provenance["generator"]["revision"] or ""),
         "record an exact generator revision")
 require(config == provenance["generator"]["options"] == generated["config"],
