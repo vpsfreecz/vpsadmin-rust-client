@@ -35,7 +35,8 @@ copied runtime, generator dependency lock and toolchain. `schema/inventory.json`
 describes the exported resources, actions and parameters.
 
 To refresh the schema, follow vpsAdmin's
-`docs/api-schema-export.md`, review the source export and retain its schema,
+[schema export and generated-client synchronization procedure](https://github.com/vpsfreecz/vpsadmin/blob/master/docs/api-schema-export.md#generated-client-synchronization),
+review the source export and retain its schema,
 provenance and tooling lock together. Update client provenance and inventory,
 then regenerate from the saved schema using the pinned generator. Never save
 credentials, database URLs, login responses or transient tokens.
@@ -44,6 +45,12 @@ The sanitizer removes prose, examples, validator messages and protected defaults
 while preserving wire names, paths, validators, namespaces and nullability.
 Canonical JSON sorts object keys, uses two-space indentation and LF newlines,
 and ends with a newline. Arrays keep their order.
+
+Follow that procedure when API, shared-schema, generator or copied-runtime
+changes affect this client. Record the API source revision, then update the
+client default branch or record evidence against that revision that no generated
+change is needed. A successful `tools/regenerate --check` proves consistency
+with the saved inputs; it does not prove they match current API source.
 
 ## Offline generation
 
@@ -157,6 +164,11 @@ interface, including copied common types. A compatible server may add fields;
 older clients tolerate unknown output fields. Removed actions, changed public
 types, newly required inputs or a different API target need a breaking crate
 version. During 0.x this means a new minor version. Document MSRV changes.
+
+Ordinary source synchronization does not itself require a crate release.
+Assess Rust interface compatibility under this crate's versioning policy when
+preparing a release, and follow the linked synchronization procedure for task
+completion and any dependent release requirements.
 
 Before an authorized release, review the source and generator provenance,
 regenerate, run the verification matrix and package check, and update
