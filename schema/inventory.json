@@ -1,5 +1,5 @@
 {
-  "action_count": 524,
+  "action_count": 526,
   "actions": [
     {
       "method": "POST",
@@ -42530,6 +42530,60 @@
       "path": "/v7.0/security_advisories"
     },
     {
+      "method": "DELETE",
+      "name": [
+        "security_advisory",
+        "delete"
+      ],
+      "parameters": [
+        [
+          "security_advisory",
+          "delete",
+          "input",
+          "expected_content_revision"
+        ],
+        [
+          "security_advisory",
+          "delete",
+          "input",
+          "expected_state"
+        ],
+        [
+          "security_advisory",
+          "delete",
+          "meta",
+          "global",
+          "input",
+          "includes"
+        ],
+        [
+          "security_advisory",
+          "delete",
+          "meta",
+          "global",
+          "input",
+          "no"
+        ],
+        [
+          "security_advisory",
+          "delete",
+          "meta",
+          "object",
+          "output",
+          "path_params"
+        ],
+        [
+          "security_advisory",
+          "delete",
+          "meta",
+          "object",
+          "output",
+          "resolved"
+        ]
+      ],
+      "path": "/v7.0/security_advisories/{security_advisory_id}"
+    },
+    {
       "method": "GET",
       "name": [
         "security_advisory",
@@ -43022,6 +43076,186 @@
       "path": "/v7.0/security_advisories/{security_advisory_id}/rebuild_affected_vps"
     },
     {
+      "method": "POST",
+      "name": [
+        "security_advisory",
+        "retract"
+      ],
+      "parameters": [
+        [
+          "security_advisory",
+          "retract",
+          "input",
+          "expected_content_revision"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "input",
+          "expected_state"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "affected"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "affected_node_count"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "affected_user_count"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "affected_vps_count"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "content_revision"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "created_at"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "created_by"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "cs_description"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "cs_response"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "cs_summary"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "en_description"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "en_response"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "en_summary"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "external_id"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "id"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "name"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "published_at"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "published_by"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "retracted_at"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "state"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "output",
+          "updated_at"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "meta",
+          "global",
+          "input",
+          "includes"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "meta",
+          "global",
+          "input",
+          "no"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "meta",
+          "object",
+          "output",
+          "path_params"
+        ],
+        [
+          "security_advisory",
+          "retract",
+          "meta",
+          "object",
+          "output",
+          "resolved"
+        ]
+      ],
+      "path": "/v7.0/security_advisories/{security_advisory_id}/retract"
+    },
+    {
       "method": "GET",
       "name": [
         "security_advisory",
@@ -43242,6 +43476,12 @@
           "security_advisory",
           "update",
           "input",
+          "expected_state"
+        ],
+        [
+          "security_advisory",
+          "update",
+          "input",
           "name"
         ],
         [
@@ -43445,6 +43685,13 @@
           "node_status",
           "create",
           "input",
+          "expected_state"
+        ],
+        [
+          "security_advisory",
+          "node_status",
+          "create",
+          "input",
           "mitigated_since"
         ],
         [
@@ -43577,6 +43824,13 @@
           "delete",
           "input",
           "expected_content_revision"
+        ],
+        [
+          "security_advisory",
+          "node_status",
+          "delete",
+          "input",
+          "expected_state"
         ],
         [
           "security_advisory",
@@ -43800,6 +44054,13 @@
           "node_status",
           "update",
           "input",
+          "expected_state"
+        ],
+        [
+          "security_advisory",
+          "node_status",
+          "update",
+          "input",
           "mitigated_since"
         ],
         [
@@ -43934,6 +44195,12 @@
           "security_advisory_cve",
           "create",
           "input",
+          "expected_state"
+        ],
+        [
+          "security_advisory_cve",
+          "create",
+          "input",
           "security_advisory"
         ],
         [
@@ -44013,6 +44280,12 @@
           "delete",
           "input",
           "expected_content_revision"
+        ],
+        [
+          "security_advisory_cve",
+          "delete",
+          "input",
+          "expected_state"
         ],
         [
           "security_advisory_cve",
@@ -44251,6 +44524,12 @@
           "update",
           "input",
           "expected_content_revision"
+        ],
+        [
+          "security_advisory_cve",
+          "update",
+          "input",
+          "expected_state"
         ],
         [
           "security_advisory_cve",
@@ -64590,9 +64869,9 @@
     }
   ],
   "api_version": "7.0",
-  "coverage": "captured description only; plugin coverage unknown",
-  "parameter_count": 8720,
-  "profile": "public-live-api-7.0",
+  "coverage": "declared source fixture with all six bundled plugins",
+  "parameter_count": 8760,
+  "profile": "vpsadmin-full-fixture",
   "resource_count": 152,
   "resources": [
     [
@@ -65101,5 +65380,5 @@
       "token"
     ]
   ],
-  "schema_sha256": "70f89335e15263fd7177f29a00fab04b5ff1923c6922dfd318b07c3ae922fb8d"
+  "schema_sha256": "d6ec617653913c56e92398a6032aa350118597a0e3f45c599bc92b6071ea0a26"
 }

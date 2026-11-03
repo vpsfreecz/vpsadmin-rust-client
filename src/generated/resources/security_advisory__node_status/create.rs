@@ -18,6 +18,11 @@ pub struct Input {
     )]
     pub expected_content_revision: runtime::InputValue<i64>,
     #[serde(
+        rename = "expected_state",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub expected_state: runtime::InputValue<String>,
+    #[serde(
         rename = "mitigated_since",
         skip_serializing_if = "runtime::InputValue::is_unset"
     )]
@@ -40,6 +45,7 @@ impl runtime::Validate for Input {
         runtime::Validate::validate(&self.cs_note)?;
         runtime::Validate::validate(&self.en_note)?;
         runtime::Validate::validate(&self.expected_content_revision)?;
+        runtime::Validate::validate(&self.expected_state)?;
         runtime::Validate::validate(&self.mitigated_since)?;
         runtime::Validate::validate(&self.node)?;
         runtime::Validate::validate(&self.state)?;
@@ -110,6 +116,13 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
                 name: "expected_content_revision",
                 kind: runtime::ParameterKind::Integer,
                 required: true,
+                nullable: false,
+                protected: false,
+            },
+            runtime::ParameterSpec {
+                name: "expected_state",
+                kind: runtime::ParameterKind::String,
+                required: false,
                 nullable: false,
                 protected: false,
             },
@@ -187,6 +200,10 @@ impl<'a, C: runtime::Mode> runtime::Request<'a, C, Input, Output, Meta> {
     }
     pub fn expected_content_revision(mut self, value: i64) -> Self {
         self.input_mut().expected_content_revision = runtime::InputValue::Value(value);
+        self
+    }
+    pub fn expected_state(mut self, value: impl Into<String>) -> Self {
+        self.input_mut().expected_state = runtime::InputValue::Value(value.into());
         self
     }
     pub fn mitigated_since(mut self, value: impl Into<String>) -> Self {

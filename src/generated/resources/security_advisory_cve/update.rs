@@ -13,6 +13,11 @@ pub struct Input {
     )]
     pub expected_content_revision: runtime::InputValue<i64>,
     #[serde(
+        rename = "expected_state",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub expected_state: runtime::InputValue<String>,
+    #[serde(
         rename = "security_advisory",
         skip_serializing_if = "runtime::InputValue::is_unset"
     )]
@@ -22,6 +27,7 @@ impl runtime::Validate for Input {
     fn validate(&self) -> Result<(), runtime::Error> {
         runtime::Validate::validate(&self.cve_id)?;
         runtime::Validate::validate(&self.expected_content_revision)?;
+        runtime::Validate::validate(&self.expected_state)?;
         runtime::Validate::validate(&self.security_advisory)?;
         Ok(())
     }
@@ -79,6 +85,13 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
                 protected: false,
             },
             runtime::ParameterSpec {
+                name: "expected_state",
+                kind: runtime::ParameterKind::String,
+                required: false,
+                nullable: false,
+                protected: false,
+            },
+            runtime::ParameterSpec {
                 name: "security_advisory",
                 kind: runtime::ParameterKind::Resource,
                 required: false,
@@ -119,6 +132,10 @@ impl<'a, C: runtime::Mode> runtime::Request<'a, C, Input, Output, Meta> {
     }
     pub fn expected_content_revision(mut self, value: i64) -> Self {
         self.input_mut().expected_content_revision = runtime::InputValue::Value(value);
+        self
+    }
+    pub fn expected_state(mut self, value: impl Into<String>) -> Self {
+        self.input_mut().expected_state = runtime::InputValue::Value(value.into());
         self
     }
     pub fn security_advisory(mut self, value: i64) -> Self {

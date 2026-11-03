@@ -1,9 +1,11 @@
 use crate::runtime;
 use std::collections::BTreeMap;
 pub mod create;
+pub mod delete;
 pub mod index;
 pub mod publish;
 pub mod rebuild_affected_vps;
+pub mod retract;
 pub mod show;
 pub mod update;
 
@@ -30,6 +32,30 @@ impl<'a, C: runtime::Mode> Handle<'a, C> {
         #[allow(unused_mut)]
         let mut path_params = self.path_params.clone();
         runtime::Request::new(self.client, &create::SPEC, path_params, Default::default())
+    }
+    pub fn delete(
+        &self,
+        security_advisory_id: impl ToString,
+    ) -> runtime::Request<'a, C, delete::Input, delete::Output, delete::Meta> {
+        #[allow(unused_mut)]
+        let mut path_params = self.path_params.clone();
+        path_params.insert(
+            "security_advisory_id".to_owned(),
+            security_advisory_id.to_string(),
+        );
+        runtime::Request::new(self.client, &delete::SPEC, path_params, Default::default())
+    }
+    pub fn destroy(
+        &self,
+        security_advisory_id: impl ToString,
+    ) -> runtime::Request<'a, C, delete::Input, delete::Output, delete::Meta> {
+        #[allow(unused_mut)]
+        let mut path_params = self.path_params.clone();
+        path_params.insert(
+            "security_advisory_id".to_owned(),
+            security_advisory_id.to_string(),
+        );
+        runtime::Request::new(self.client, &delete::SPEC, path_params, Default::default())
     }
     pub fn index(&self) -> runtime::Request<'a, C, index::Input, Vec<index::Output>, index::Meta> {
         #[allow(unused_mut)]
@@ -75,6 +101,18 @@ impl<'a, C: runtime::Mode> Handle<'a, C> {
             path_params,
             Default::default(),
         )
+    }
+    pub fn retract(
+        &self,
+        security_advisory_id: impl ToString,
+    ) -> runtime::Request<'a, C, retract::Input, retract::Output, retract::Meta> {
+        #[allow(unused_mut)]
+        let mut path_params = self.path_params.clone();
+        path_params.insert(
+            "security_advisory_id".to_owned(),
+            security_advisory_id.to_string(),
+        );
+        runtime::Request::new(self.client, &retract::SPEC, path_params, Default::default())
     }
     pub fn show(
         &self,

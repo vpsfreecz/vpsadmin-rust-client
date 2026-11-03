@@ -1,5 +1,5 @@
 crate_name = "vpsadmin-client"
-crate_version = "0.1.0"
+crate_version = "0.2.0"
 license = "MIT"
 edition = "2024"
 rust_version = "1.95"

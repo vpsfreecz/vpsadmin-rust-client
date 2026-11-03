@@ -1,36 +1,26 @@
 {
   "api_version": "7.0",
-  "capture": {
-    "acquisition_started_at": "2026-10-30T11:20:08Z",
-    "authenticated": false,
-    "captured_at": "2026-10-30T11:20:12Z",
-    "followed_redirects": false,
-    "generator_revision": "f0465630595b4fd120561337b3d1d7fa96cbe221",
-    "method": "OPTIONS",
-    "profile": "public-live-api-7.0",
-    "shared_schema_source_sha256": "e12f7989a028bb529f4a78a510af8e09411bbeb5eec9c782feb1fbf20862533c",
-    "source_url": "https://api.vpsfree.cz/v7.0/",
-    "tooling": {
-      "bundler": "4.0.23",
-      "component": "clients/go",
-      "ruby": "3.4.11",
-      "ruby_dependency_lock_sha256": "bb4b5eab29bef661b4b3b5cd64a26852eee795105d0a1d872a37623ffb70450d"
-    }
-  },
   "coverage": {
-    "action_count": 524,
-    "api_action_count": 519,
+    "action_count": 526,
+    "api_action_count": 521,
     "authentication_action_count": 5,
-    "completeness": "captured public description only",
-    "parameter_count": 8720,
-    "plugins": "unknown",
+    "completeness": "declared source fixture with all six bundled plugins",
+    "parameter_count": 8760,
+    "plugins": [
+      "monitoring",
+      "newslog",
+      "outage_reports",
+      "payments",
+      "requests",
+      "webui"
+    ],
     "resource_count": 152,
     "top_level_resource_count": 104
   },
   "generator": {
     "options": {
       "crate_name": "vpsadmin-client",
-      "crate_version": "0.1.0",
+      "crate_version": "0.2.0",
       "edition": "2024",
       "license": "MIT",
       "rust_version": "1.95",
@@ -58,8 +48,7 @@
     "source_directory": "clients/rust/runtime/src/runtime"
   },
   "sanitization": {
-    "owner": "HaveAPI::Schema::Snapshot",
-    "protected_default_diagnostics": [],
+    "owner": "VpsAdmin::SchemaExport::Snapshot",
     "removed_fields": [
       "descriptive prose",
       "examples",
@@ -68,7 +57,12 @@
     ]
   },
   "schema_format": 1,
-  "schema_sha256": "70f89335e15263fd7177f29a00fab04b5ff1923c6922dfd318b07c3ae922fb8d",
+  "schema_sha256": "d6ec617653913c56e92398a6032aa350118597a0e3f45c599bc92b6071ea0a26",
+  "source_export": {
+    "profile": "vpsadmin-full-fixture",
+    "provenance_sha256": "c85815abd315f53a5ef05f324abe377760293786a13a25b7a127ec804c50e0c1",
+    "revision": "942c6eaed41331f823d8e0f670ed239e2b308440"
+  },
   "toolchain": {
     "cargo": "cargo 1.98.0 (797e8a9bc 2026-08-05)",
     "edition": "2024",

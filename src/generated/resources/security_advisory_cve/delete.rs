@@ -7,10 +7,16 @@ pub struct Input {
         skip_serializing_if = "runtime::InputValue::is_unset"
     )]
     pub expected_content_revision: runtime::InputValue<i64>,
+    #[serde(
+        rename = "expected_state",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub expected_state: runtime::InputValue<String>,
 }
 impl runtime::Validate for Input {
     fn validate(&self) -> Result<(), runtime::Error> {
         runtime::Validate::validate(&self.expected_content_revision)?;
+        runtime::Validate::validate(&self.expected_state)?;
         Ok(())
     }
 }
@@ -40,13 +46,22 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
     input: Some(runtime::InputSpec {
         layout: runtime::Layout::Object,
         namespace: Some("security_advisory_cve"),
-        parameters: &[runtime::ParameterSpec {
-            name: "expected_content_revision",
-            kind: runtime::ParameterKind::Integer,
-            required: true,
-            nullable: false,
-            protected: false,
-        }],
+        parameters: &[
+            runtime::ParameterSpec {
+                name: "expected_content_revision",
+                kind: runtime::ParameterKind::Integer,
+                required: true,
+                nullable: false,
+                protected: false,
+            },
+            runtime::ParameterSpec {
+                name: "expected_state",
+                kind: runtime::ParameterKind::String,
+                required: false,
+                nullable: false,
+                protected: false,
+            },
+        ],
     }),
     output: Some(runtime::OutputSpec {
         layout: runtime::Layout::Object,
@@ -76,6 +91,10 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
 impl<'a, C: runtime::Mode> runtime::Request<'a, C, Input, Output, Meta> {
     pub fn expected_content_revision(mut self, value: i64) -> Self {
         self.input_mut().expected_content_revision = runtime::InputValue::Value(value);
+        self
+    }
+    pub fn expected_state(mut self, value: impl Into<String>) -> Self {
+        self.input_mut().expected_state = runtime::InputValue::Value(value.into());
         self
     }
 }

@@ -37,6 +37,11 @@ pub struct Input {
         skip_serializing_if = "runtime::InputValue::is_unset"
     )]
     pub expected_content_revision: runtime::InputValue<i64>,
+    #[serde(
+        rename = "expected_state",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub expected_state: runtime::InputValue<String>,
     #[serde(rename = "name", skip_serializing_if = "runtime::InputValue::is_unset")]
     pub name: runtime::InputValue<String>,
     #[serde(
@@ -54,6 +59,7 @@ impl runtime::Validate for Input {
         runtime::Validate::validate(&self.en_response)?;
         runtime::Validate::validate(&self.en_summary)?;
         runtime::Validate::validate(&self.expected_content_revision)?;
+        runtime::Validate::validate(&self.expected_state)?;
         runtime::Validate::validate(&self.name)?;
         runtime::Validate::validate(&self.published_at)?;
         Ok(())
@@ -180,6 +186,13 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
                 protected: false,
             },
             runtime::ParameterSpec {
+                name: "expected_state",
+                kind: runtime::ParameterKind::String,
+                required: false,
+                nullable: false,
+                protected: false,
+            },
+            runtime::ParameterSpec {
                 name: "name",
                 kind: runtime::ParameterKind::String,
                 required: false,
@@ -247,6 +260,10 @@ impl<'a, C: runtime::Mode> runtime::Request<'a, C, Input, Output, Meta> {
     }
     pub fn expected_content_revision(mut self, value: i64) -> Self {
         self.input_mut().expected_content_revision = runtime::InputValue::Value(value);
+        self
+    }
+    pub fn expected_state(mut self, value: impl Into<String>) -> Self {
+        self.input_mut().expected_state = runtime::InputValue::Value(value.into());
         self
     }
     pub fn name(mut self, value: impl Into<String>) -> Self {
