@@ -10,7 +10,7 @@ Add the client and Tokio to your application:
 
 ```toml
 [dependencies]
-vpsadmin-client = "0.1"
+vpsadmin-client = "0.2"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -209,7 +209,7 @@ Enable the `blocking` feature:
 
 ```toml
 [dependencies]
-vpsadmin-client = { version = "0.1", features = ["blocking"] }
+vpsadmin-client = { version = "0.2", features = ["blocking"] }
 ```
 
 This lists the same first page using synchronous calls:
@@ -260,8 +260,9 @@ tokens automatically.
 Successful calls return typed `output`, action metadata in `meta` and
 `http_status`. Output fields use `Option`: a missing or null field becomes
 `None`. Related objects can be partial; the client does not fetch them
-automatically. The generated client covers a public API snapshot; its plugin
-completeness is unknown.
+automatically. The generated client describes API 7.0 from vpsAdmin source, including
+all six bundled plugins. Server permissions and installation-specific plugin
+availability still apply.
 
 Requests return errors for invalid inputs, transport failures, unsuccessful
 HTTP or API responses, and invalid response data. The examples propagate these

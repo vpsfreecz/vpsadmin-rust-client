@@ -20,25 +20,30 @@ dependency. Retain `Cargo.lock` for repeatable verification.
 
 ## Saved schema
 
-`schema/api-7.0.json` is a canonical sanitized snapshot of an unauthenticated
-OPTIONS request to the explicit production API 7.0 endpoint. It retains paths,
-wire names, validators, namespaces, nullability and authentication discovery.
-The sanitizer removes prose, examples, validator messages and protected defaults.
-The canonical digest covers sorted JSON object keys, two-space indentation,
-LF newlines and a terminal newline. Arrays keep their order.
+`schema/api-7.0.json` is the canonical sanitized API 7.0 schema exported from a
+clean, committed vpsAdmin checkout by `tools/export-api-schema`. The exporter
+mounts the API with all six bundled plugins and English fixture data in a new
+temporary database. Profile `vpsadmin-full-fixture` describes declared operations
+and parameters. It does not describe a user's permissions or certify a deployed
+installation's capabilities. Exporting does not contact a deployed API.
 
-`schema/provenance.json` records the capture profile, acquisition time,
-canonical digest, sanitizer diagnostics, generator revision, runtime digest and
-toolchain. `schema/inventory.json` describes the captured resources, actions and
-parameters. Plugin completeness is unknown. These files describe one public
-surface; they do not combine metadata from different credentials or replace it
-with an administrator's local description.
+`schema/source-provenance.json` retains the exporter's source revision, plugin
+and fixture/configuration hashes, dependency identities and schema digest.
+`schema/tooling.Gemfile.lock` retains its exact dependency graph.
+`schema/provenance.json` binds that receipt and schema to this client's generator,
+copied runtime, generator dependency lock and toolchain. `schema/inventory.json`
+describes the exported resources, actions and parameters.
 
-Refreshing the capture is an explicit maintenance action. Use the generator's
-`fetch` command with API version `7.0` and profile `public-live-api-7.0`, review
-the sanitized result and its inventory, then update provenance and regenerate.
-Keep raw HTTP captures outside the repository. Never save authentication
-headers, cookies, credentials, login responses or transient tokens.
+To refresh the schema, follow vpsAdmin's
+`docs/api-schema-export.md`, review the source export and retain its schema,
+provenance and tooling lock together. Update client provenance and inventory,
+then regenerate from the saved schema using the pinned generator. Never save
+credentials, database URLs, login responses or transient tokens.
+
+The sanitizer removes prose, examples, validator messages and protected defaults
+while preserving wire names, paths, validators, namespaces and nullability.
+Canonical JSON sorts object keys, uses two-space indentation and LF newlines,
+and ends with a newline. Arrays keep their order.
 
 ## Offline generation
 
@@ -108,9 +113,10 @@ each refresh.
 ## Verification
 
 Known quick checks are `cargo fmt --all -- --check`, `bash -n tools/regenerate`,
-`tools/check-provenance`, and deterministic `tools/regenerate --check` once the
-generator is available. The provenance check compares snapshot, inventory,
-retained dependency lock and generated digests with the recorded values.
+`tools/check-provenance`, `python3 -B tools/test-provenance.py`, and deterministic
+`tools/regenerate --check` once the generator is available. The provenance check
+binds the source receipt, schema, inventory, exporter and generator locks,
+generator configuration and copied runtime.
 The preparation block also runs `python3 -B tools/test-regenerate.py` for
 refusal checks in disposable source copies.
 
@@ -152,8 +158,9 @@ older clients tolerate unknown output fields. Removed actions, changed public
 types, newly required inputs or a different API target need a breaking crate
 version. During 0.x this means a new minor version. Document MSRV changes.
 
-Before an authorized release, review the schema/provenance, regenerate, run the
-verification matrix and package check, and update `CHANGELOG.md`. Inspect
+Before an authorized release, review the source and generator provenance,
+regenerate, run the verification matrix and package check, and update
+`CHANGELOG.md`. Inspect
 `cargo package --list --locked` so the package contains the generated runtime
 and has no HaveAPI path or Git dependency. Publishing to crates.io is a separate
 explicit action through the manual workflow described below.
@@ -207,7 +214,7 @@ version tags using the default OIDC mode:
 
 ```sh
 gh workflow run release.yml --repo vpsfreecz/vpsadmin-rust-client \
-  --ref v0.1.1 -f authentication=oidc
+  --ref v0.2.0 -f authentication=oidc
 ```
 
 The workflow obtains OIDC credentials after verification and toolchain setup,
