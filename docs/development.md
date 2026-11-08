@@ -34,6 +34,13 @@ and fixture/configuration hashes, dependency identities and schema digest.
 copied runtime, generator dependency lock and toolchain. `schema/inventory.json`
 describes the exported resources, actions and parameters.
 
+The saved source revision is `68a36237b0bad9625fb25965bd415e801ddccf4c`.
+Its raw schema SHA-256 is
+`46317b52cbb73ddb54973e5227a9a274bc74f76834eb8e4ead3f2266cf46a972`;
+the unchanged source receipt and exporter lock are retained alongside it.
+This refresh adds DNS readiness and serving data without changing the pinned
+generator, copied runtime, formatter, crate version or dependency lock.
+
 To refresh the schema, follow vpsAdmin's
 [schema export and generated-client synchronization procedure](https://github.com/vpsfreecz/vpsadmin/blob/master/docs/api-schema-export.md#generated-client-synchronization),
 review the source export and retain its schema,

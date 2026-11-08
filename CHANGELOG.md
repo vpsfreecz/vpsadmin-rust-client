@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Add DNS primary transfer checks, flags showing whether results are current,
+  secondary serving status and historical transfer kinds. The new operations
+  and fields require a compatible API. Missing evidence does not mean the
+  primary is ready.
+- Optional outputs preserve absent values.
+
 ## 0.2.0
 
 - Regenerate API 7.0 from the vpsAdmin source fixture with all bundled plugins,
