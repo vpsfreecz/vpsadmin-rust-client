@@ -3,6 +3,11 @@ use crate::runtime;
 #[derive(Default, serde::Serialize)]
 pub struct Input {
     #[serde(
+        rename = "attempt_kind",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub attempt_kind: runtime::InputValue<String>,
+    #[serde(
         rename = "dns_server_zone",
         skip_serializing_if = "runtime::InputValue::is_unset"
     )]
@@ -12,6 +17,16 @@ pub struct Input {
         skip_serializing_if = "runtime::InputValue::is_unset"
     )]
     pub dns_zone: runtime::InputValue<i64>,
+    #[serde(
+        rename = "dns_zone_transfer",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub dns_zone_transfer: runtime::InputValue<i64>,
+    #[serde(
+        rename = "failure_class",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub failure_class: runtime::InputValue<String>,
     #[serde(
         rename = "from_id",
         skip_serializing_if = "runtime::InputValue::is_unset"
@@ -45,8 +60,11 @@ pub struct Input {
 }
 impl runtime::Validate for Input {
     fn validate(&self) -> Result<(), runtime::Error> {
+        runtime::Validate::validate(&self.attempt_kind)?;
         runtime::Validate::validate(&self.dns_server_zone)?;
         runtime::Validate::validate(&self.dns_zone)?;
+        runtime::Validate::validate(&self.dns_zone_transfer)?;
+        runtime::Validate::validate(&self.failure_class)?;
         runtime::Validate::validate(&self.from_id)?;
         runtime::Validate::validate(&self.limit)?;
         runtime::Validate::validate(&self.order)?;
@@ -59,27 +77,38 @@ impl runtime::Validate for Input {
 #[derive(Default, serde::Deserialize)]
 #[non_exhaustive]
 pub struct Output {
+    #[serde(default, rename = "attempt_kind")]
+    pub attempt_kind: Option<String>,
     #[serde(default, rename = "created_at")]
     pub created_at: Option<String>,
     #[doc = "Association keys: ID=id, label=id"]
     #[serde(default, rename = "dns_server_zone")]
     pub dns_server_zone: Option<runtime::Association>,
+    #[doc = "Association keys: ID=id, label=id"]
+    #[serde(default, rename = "dns_zone_transfer")]
+    pub dns_zone_transfer: Option<runtime::Association>,
     #[serde(default, rename = "event_at")]
     pub event_at: Option<String>,
     #[serde(default, rename = "event_key")]
     pub event_key: Option<String>,
+    #[serde(default, rename = "failure_class")]
+    pub failure_class: Option<String>,
     #[serde(default, rename = "id")]
     pub id: Option<i64>,
     #[serde(default, rename = "message")]
     pub message: Option<String>,
     #[serde(default, rename = "primary_addr")]
     pub primary_addr: Option<String>,
+    #[serde(default, rename = "primary_serial")]
+    pub primary_serial: Option<i64>,
     #[serde(default, rename = "raw_message")]
     pub raw_message: Option<String>,
     #[serde(default, rename = "reason")]
     pub reason: Option<String>,
     #[serde(default, rename = "reason_code")]
     pub reason_code: Option<String>,
+    #[serde(default, rename = "secondary_serial")]
+    pub secondary_serial: Option<i64>,
     #[serde(default, rename = "serial")]
     pub serial: Option<i64>,
     #[serde(default, rename = "source_cursor")]
@@ -111,6 +140,13 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
         namespace: Some("dns_server_zone_transfer_log"),
         parameters: &[
             runtime::ParameterSpec {
+                name: "attempt_kind",
+                kind: runtime::ParameterKind::String,
+                required: false,
+                nullable: false,
+                protected: false,
+            },
+            runtime::ParameterSpec {
                 name: "dns_server_zone",
                 kind: runtime::ParameterKind::Resource,
                 required: false,
@@ -122,6 +158,20 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
                 kind: runtime::ParameterKind::Resource,
                 required: false,
                 nullable: false,
+                protected: false,
+            },
+            runtime::ParameterSpec {
+                name: "dns_zone_transfer",
+                kind: runtime::ParameterKind::Resource,
+                required: false,
+                nullable: true,
+                protected: false,
+            },
+            runtime::ParameterSpec {
+                name: "failure_class",
+                kind: runtime::ParameterKind::String,
+                required: false,
+                nullable: true,
                 protected: false,
             },
             runtime::ParameterSpec {
@@ -201,12 +251,32 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
     auth: runtime::RequestAuth::Configured,
 };
 impl<'a, C: runtime::Mode> runtime::Request<'a, C, Input, Vec<Output>, Meta> {
+    pub fn attempt_kind(mut self, value: impl Into<String>) -> Self {
+        self.input_mut().attempt_kind = runtime::InputValue::Value(value.into());
+        self
+    }
     pub fn dns_server_zone(mut self, value: i64) -> Self {
         self.input_mut().dns_server_zone = runtime::InputValue::Value(value);
         self
     }
     pub fn dns_zone(mut self, value: i64) -> Self {
         self.input_mut().dns_zone = runtime::InputValue::Value(value);
+        self
+    }
+    pub fn dns_zone_transfer(mut self, value: i64) -> Self {
+        self.input_mut().dns_zone_transfer = runtime::InputValue::Value(value);
+        self
+    }
+    pub fn dns_zone_transfer_null(mut self) -> Self {
+        self.input_mut().dns_zone_transfer = runtime::InputValue::Null;
+        self
+    }
+    pub fn failure_class(mut self, value: impl Into<String>) -> Self {
+        self.input_mut().failure_class = runtime::InputValue::Value(value.into());
+        self
+    }
+    pub fn failure_class_null(mut self) -> Self {
+        self.input_mut().failure_class = runtime::InputValue::Null;
         self
     }
     pub fn from_id(mut self, value: i64) -> Self {

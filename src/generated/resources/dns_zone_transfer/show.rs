@@ -23,8 +23,20 @@ pub struct Output {
     pub host_ip_address: Option<runtime::Association>,
     #[serde(default, rename = "id")]
     pub id: Option<i64>,
+    #[serde(default, rename = "last_transfer_check_at")]
+    pub last_transfer_check_at: Option<String>,
     #[serde(default, rename = "peer_type")]
     pub peer_type: Option<String>,
+    #[serde(default, rename = "transfer_check_failed_count")]
+    pub transfer_check_failed_count: Option<i64>,
+    #[serde(default, rename = "transfer_check_pending_count")]
+    pub transfer_check_pending_count: Option<i64>,
+    #[serde(default, rename = "transfer_check_server_count")]
+    pub transfer_check_server_count: Option<i64>,
+    #[serde(default, rename = "transfer_check_status")]
+    pub transfer_check_status: Option<String>,
+    #[serde(default, rename = "transfer_check_success_count")]
+    pub transfer_check_success_count: Option<i64>,
     #[serde(default, rename = "updated_at")]
     pub updated_at: Option<String>,
     #[serde(default, rename = "_meta")]

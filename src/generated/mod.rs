@@ -3,7 +3,7 @@ pub mod resources;
 pub mod runtime;
 pub use runtime::*;
 pub const API_VERSION: &str = "7.0";
-pub const SCHEMA_SHA256: &str = "d6ec617653913c56e92398a6032aa350118597a0e3f45c599bc92b6071ea0a26";
+pub const SCHEMA_SHA256: &str = "46317b52cbb73ddb54973e5227a9a274bc74f76834eb8e4ead3f2266cf46a972";
 pub static API_SPEC: runtime::ApiSpec = runtime::ApiSpec {
     api_version: API_VERSION,
     protocol_major: 2,

@@ -110,14 +110,14 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
                 name: "ipv4_addr",
                 kind: runtime::ParameterKind::String,
                 required: false,
-                nullable: false,
+                nullable: true,
                 protected: false,
             },
             runtime::ParameterSpec {
                 name: "ipv6_addr",
                 kind: runtime::ParameterKind::String,
                 required: false,
-                nullable: false,
+                nullable: true,
                 protected: false,
             },
             runtime::ParameterSpec {
@@ -181,8 +181,16 @@ impl<'a, C: runtime::Mode> runtime::Request<'a, C, Input, Output, Meta> {
         self.input_mut().ipv4_addr = runtime::InputValue::Value(value.into());
         self
     }
+    pub fn ipv4_addr_null(mut self) -> Self {
+        self.input_mut().ipv4_addr = runtime::InputValue::Null;
+        self
+    }
     pub fn ipv6_addr(mut self, value: impl Into<String>) -> Self {
         self.input_mut().ipv6_addr = runtime::InputValue::Value(value.into());
+        self
+    }
+    pub fn ipv6_addr_null(mut self) -> Self {
+        self.input_mut().ipv6_addr = runtime::InputValue::Null;
         self
     }
     pub fn name(mut self, value: impl Into<String>) -> Self {

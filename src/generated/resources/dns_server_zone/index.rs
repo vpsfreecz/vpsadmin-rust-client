@@ -76,6 +76,8 @@ pub struct Output {
     pub type_: Option<String>,
     #[serde(default, rename = "updated_at")]
     pub updated_at: Option<String>,
+    #[serde(default, rename = "zone_status")]
+    pub zone_status: Option<String>,
     #[serde(default, rename = "_meta")]
     pub object_meta: Option<runtime::JsonMap>,
     #[serde(flatten)]

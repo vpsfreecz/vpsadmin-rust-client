@@ -10,27 +10,38 @@ impl runtime::Validate for Input {
 #[derive(Default, serde::Deserialize)]
 #[non_exhaustive]
 pub struct Output {
+    #[serde(default, rename = "attempt_kind")]
+    pub attempt_kind: Option<String>,
     #[serde(default, rename = "created_at")]
     pub created_at: Option<String>,
     #[doc = "Association keys: ID=id, label=id"]
     #[serde(default, rename = "dns_server_zone")]
     pub dns_server_zone: Option<runtime::Association>,
+    #[doc = "Association keys: ID=id, label=id"]
+    #[serde(default, rename = "dns_zone_transfer")]
+    pub dns_zone_transfer: Option<runtime::Association>,
     #[serde(default, rename = "event_at")]
     pub event_at: Option<String>,
     #[serde(default, rename = "event_key")]
     pub event_key: Option<String>,
+    #[serde(default, rename = "failure_class")]
+    pub failure_class: Option<String>,
     #[serde(default, rename = "id")]
     pub id: Option<i64>,
     #[serde(default, rename = "message")]
     pub message: Option<String>,
     #[serde(default, rename = "primary_addr")]
     pub primary_addr: Option<String>,
+    #[serde(default, rename = "primary_serial")]
+    pub primary_serial: Option<i64>,
     #[serde(default, rename = "raw_message")]
     pub raw_message: Option<String>,
     #[serde(default, rename = "reason")]
     pub reason: Option<String>,
     #[serde(default, rename = "reason_code")]
     pub reason_code: Option<String>,
+    #[serde(default, rename = "secondary_serial")]
+    pub secondary_serial: Option<i64>,
     #[serde(default, rename = "serial")]
     pub serial: Option<i64>,
     #[serde(default, rename = "source_cursor")]

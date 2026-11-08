@@ -1,5 +1,5 @@
 {
-  "action_count": 526,
+  "action_count": 527,
   "actions": [
     {
       "method": "POST",
@@ -8063,6 +8063,12 @@
         [
           "dns_server_zone",
           "create",
+          "output",
+          "zone_status"
+        ],
+        [
+          "dns_server_zone",
+          "create",
           "meta",
           "global",
           "input",
@@ -8301,6 +8307,12 @@
         [
           "dns_server_zone",
           "index",
+          "output",
+          "zone_status"
+        ],
+        [
+          "dns_server_zone",
+          "index",
           "meta",
           "global",
           "input",
@@ -8467,6 +8479,12 @@
         [
           "dns_server_zone",
           "show",
+          "output",
+          "zone_status"
+        ],
+        [
+          "dns_server_zone",
+          "show",
           "meta",
           "global",
           "input",
@@ -8502,10 +8520,236 @@
     {
       "method": "GET",
       "name": [
+        "dns_server_zone_primary_transfer_state",
+        "index"
+      ],
+      "parameters": [
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "input",
+          "dns_server_zone"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "input",
+          "dns_zone"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "input",
+          "dns_zone_transfer"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "input",
+          "failure_class"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "input",
+          "from_id"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "input",
+          "limit"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "input",
+          "status"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "alert_eligible_at"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "created_at"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "dns_server_zone"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "dns_zone_transfer"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "evidence_current"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "failed_since"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "failure_class"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "id"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "last_attempt_at"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "last_attempt_kind"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "last_success_at"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "last_transfer_log"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "primary_serial"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "reason"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "reason_code"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "reason_observed_at"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "secondary_serial"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "secondary_source_addr"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "status"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "output",
+          "updated_at"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "meta",
+          "global",
+          "input",
+          "count"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "meta",
+          "global",
+          "input",
+          "includes"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "meta",
+          "global",
+          "input",
+          "no"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "total_count"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "meta",
+          "object",
+          "output",
+          "path_params"
+        ],
+        [
+          "dns_server_zone_primary_transfer_state",
+          "index",
+          "meta",
+          "object",
+          "output",
+          "resolved"
+        ]
+      ],
+      "path": "/v7.0/dns_server_zone_primary_transfer_states"
+    },
+    {
+      "method": "GET",
+      "name": [
         "dns_server_zone_transfer_log",
         "index"
       ],
       "parameters": [
+        [
+          "dns_server_zone_transfer_log",
+          "index",
+          "input",
+          "attempt_kind"
+        ],
         [
           "dns_server_zone_transfer_log",
           "index",
@@ -8517,6 +8761,18 @@
           "index",
           "input",
           "dns_zone"
+        ],
+        [
+          "dns_server_zone_transfer_log",
+          "index",
+          "input",
+          "dns_zone_transfer"
+        ],
+        [
+          "dns_server_zone_transfer_log",
+          "index",
+          "input",
+          "failure_class"
         ],
         [
           "dns_server_zone_transfer_log",
@@ -8558,6 +8814,12 @@
           "dns_server_zone_transfer_log",
           "index",
           "output",
+          "attempt_kind"
+        ],
+        [
+          "dns_server_zone_transfer_log",
+          "index",
+          "output",
           "created_at"
         ],
         [
@@ -8570,6 +8832,12 @@
           "dns_server_zone_transfer_log",
           "index",
           "output",
+          "dns_zone_transfer"
+        ],
+        [
+          "dns_server_zone_transfer_log",
+          "index",
+          "output",
           "event_at"
         ],
         [
@@ -8577,6 +8845,12 @@
           "index",
           "output",
           "event_key"
+        ],
+        [
+          "dns_server_zone_transfer_log",
+          "index",
+          "output",
+          "failure_class"
         ],
         [
           "dns_server_zone_transfer_log",
@@ -8600,6 +8874,12 @@
           "dns_server_zone_transfer_log",
           "index",
           "output",
+          "primary_serial"
+        ],
+        [
+          "dns_server_zone_transfer_log",
+          "index",
+          "output",
           "raw_message"
         ],
         [
@@ -8613,6 +8893,12 @@
           "index",
           "output",
           "reason_code"
+        ],
+        [
+          "dns_server_zone_transfer_log",
+          "index",
+          "output",
+          "secondary_serial"
         ],
         [
           "dns_server_zone_transfer_log",
@@ -8700,6 +8986,12 @@
           "dns_server_zone_transfer_log",
           "show",
           "output",
+          "attempt_kind"
+        ],
+        [
+          "dns_server_zone_transfer_log",
+          "show",
+          "output",
           "created_at"
         ],
         [
@@ -8712,6 +9004,12 @@
           "dns_server_zone_transfer_log",
           "show",
           "output",
+          "dns_zone_transfer"
+        ],
+        [
+          "dns_server_zone_transfer_log",
+          "show",
+          "output",
           "event_at"
         ],
         [
@@ -8719,6 +9017,12 @@
           "show",
           "output",
           "event_key"
+        ],
+        [
+          "dns_server_zone_transfer_log",
+          "show",
+          "output",
+          "failure_class"
         ],
         [
           "dns_server_zone_transfer_log",
@@ -8742,6 +9046,12 @@
           "dns_server_zone_transfer_log",
           "show",
           "output",
+          "primary_serial"
+        ],
+        [
+          "dns_server_zone_transfer_log",
+          "show",
+          "output",
           "raw_message"
         ],
         [
@@ -8755,6 +9065,12 @@
           "show",
           "output",
           "reason_code"
+        ],
+        [
+          "dns_server_zone_transfer_log",
+          "show",
+          "output",
+          "secondary_serial"
         ],
         [
           "dns_server_zone_transfer_log",
@@ -9986,7 +10302,43 @@
           "dns_zone_transfer",
           "create",
           "output",
+          "last_transfer_check_at"
+        ],
+        [
+          "dns_zone_transfer",
+          "create",
+          "output",
           "peer_type"
+        ],
+        [
+          "dns_zone_transfer",
+          "create",
+          "output",
+          "transfer_check_failed_count"
+        ],
+        [
+          "dns_zone_transfer",
+          "create",
+          "output",
+          "transfer_check_pending_count"
+        ],
+        [
+          "dns_zone_transfer",
+          "create",
+          "output",
+          "transfer_check_server_count"
+        ],
+        [
+          "dns_zone_transfer",
+          "create",
+          "output",
+          "transfer_check_status"
+        ],
+        [
+          "dns_zone_transfer",
+          "create",
+          "output",
+          "transfer_check_success_count"
         ],
         [
           "dns_zone_transfer",
@@ -10164,7 +10516,43 @@
           "dns_zone_transfer",
           "index",
           "output",
+          "last_transfer_check_at"
+        ],
+        [
+          "dns_zone_transfer",
+          "index",
+          "output",
           "peer_type"
+        ],
+        [
+          "dns_zone_transfer",
+          "index",
+          "output",
+          "transfer_check_failed_count"
+        ],
+        [
+          "dns_zone_transfer",
+          "index",
+          "output",
+          "transfer_check_pending_count"
+        ],
+        [
+          "dns_zone_transfer",
+          "index",
+          "output",
+          "transfer_check_server_count"
+        ],
+        [
+          "dns_zone_transfer",
+          "index",
+          "output",
+          "transfer_check_status"
+        ],
+        [
+          "dns_zone_transfer",
+          "index",
+          "output",
+          "transfer_check_success_count"
         ],
         [
           "dns_zone_transfer",
@@ -10264,7 +10652,43 @@
           "dns_zone_transfer",
           "show",
           "output",
+          "last_transfer_check_at"
+        ],
+        [
+          "dns_zone_transfer",
+          "show",
+          "output",
           "peer_type"
+        ],
+        [
+          "dns_zone_transfer",
+          "show",
+          "output",
+          "transfer_check_failed_count"
+        ],
+        [
+          "dns_zone_transfer",
+          "show",
+          "output",
+          "transfer_check_pending_count"
+        ],
+        [
+          "dns_zone_transfer",
+          "show",
+          "output",
+          "transfer_check_server_count"
+        ],
+        [
+          "dns_zone_transfer",
+          "show",
+          "output",
+          "transfer_check_status"
+        ],
+        [
+          "dns_zone_transfer",
+          "show",
+          "output",
+          "transfer_check_success_count"
         ],
         [
           "dns_zone_transfer",
@@ -64870,9 +65294,9 @@
   ],
   "api_version": "7.0",
   "coverage": "declared source fixture with all six bundled plugins",
-  "parameter_count": 8760,
+  "parameter_count": 8827,
   "profile": "vpsadmin-full-fixture",
-  "resource_count": 152,
+  "resource_count": 153,
   "resources": [
     [
       "action_state"
@@ -64941,6 +65365,9 @@
     ],
     [
       "dns_server_zone"
+    ],
+    [
+      "dns_server_zone_primary_transfer_state"
     ],
     [
       "dns_server_zone_transfer_log"
@@ -65380,5 +65807,5 @@
       "token"
     ]
   ],
-  "schema_sha256": "d6ec617653913c56e92398a6032aa350118597a0e3f45c599bc92b6071ea0a26"
+  "schema_sha256": "46317b52cbb73ddb54973e5227a9a274bc74f76834eb8e4ead3f2266cf46a972"
 }

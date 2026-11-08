@@ -30,6 +30,7 @@ pub mod dns_record_log;
 pub mod dns_resolver;
 pub mod dns_server;
 pub mod dns_server_zone;
+pub mod dns_server_zone_primary_transfer_state;
 pub mod dns_server_zone_transfer_log;
 pub mod dns_tsig_key;
 pub mod dns_zone;
