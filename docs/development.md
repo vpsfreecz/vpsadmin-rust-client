@@ -52,6 +52,15 @@ client default branch or record evidence against that revision that no generated
 change is needed. A successful `tools/regenerate --check` proves consistency
 with the saved inputs; it does not prove they match current API source.
 
+Incident selectors and summary fields are optional. Initial reads omit the
+selector instead of copying the server's default. Selected incident updates
+preserve explicit null limit resets and false enforcement values. The server
+validates policy names and status strings; generated input checks enforce
+primitive types and nullability. Missing or null summary fields decode to
+`None`, and datetimes remain strings. Check capability fields before using
+incident settings with an older API. Synchronous settings updates can return
+without action-state metadata.
+
 ## Offline generation
 
 Obtain a clean, separate HaveAPI checkout at the exact revision recorded in
