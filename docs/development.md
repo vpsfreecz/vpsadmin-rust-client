@@ -52,6 +52,41 @@ client default branch or record evidence against that revision that no generated
 change is needed. A successful `tools/regenerate --check` proves consistency
 with the saved inputs; it does not prove they match current API source.
 
+Use `incident_policy().index()` to discover policies and
+`vps__incident_policy(vps_id).index()` or `.show(key)` to read their current rows
+for a VPS. Policy keys come from the registry at runtime; pass the returned
+string key in policy paths. The server validates policy keys and status strings.
+Initial VPS reads omit policy filters; only explicitly selected filters are sent.
+Check server capabilities before enabling these calls.
+
+Policy `.update(key)` preserves explicit null override resets and returns the
+authoritative policy row. Change shared VPS shutdown permission through a
+separate `vps().update(vps_id)`, then use `vps().show(vps_id)` to confirm its
+current value. A shared-permission update can succeed without returning
+action-state metadata.
+
+Current rows include counts, effective limits, overrides and
+`configuration_valid`. Limits reflect the declaration and current overrides.
+Invalid configurations return null effective limits and status. Missing or null
+output values decode to `None`; datetimes remain strings. Evaluation IDs,
+timestamps, states and `incident_report__policy_evaluation(id)` describe saved
+history. They do not supply current limits or predict whether a policy will
+match a future event.
+
+Saved evaluations include nullable `matched` and the count-window lengths
+`warning_period_days` and `stop_period_days`. `Option<bool>` keeps `false`
+distinct from unknown membership (`None` for null or a missing field).
+A report's `notice_policy_key` and `notice_policy_label` identify its saved
+originating policy and use `None` when unavailable. They do not select a current
+policy. Active registry and VPS policy metadata have no `source_type` field.
+
+Incident reports expose nullable notice kind, triggering report ID and mail
+state. Ordinary reports return null for all three. Notice kind distinguishes a
+warning from a confirmed stop. The triggering report ID is an integer and may
+be unavailable. Mail state `pending` means the notice has not been queued.
+`queued` does not establish SMTP success; `sent` means SMTP succeeded, without
+proving delivery to the recipient's inbox.
+
 ## Offline generation
 
 Obtain a clean, separate HaveAPI checkout at the exact revision recorded in
