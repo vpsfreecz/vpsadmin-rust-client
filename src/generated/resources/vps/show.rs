@@ -1,9 +1,16 @@
 use crate::runtime;
 
 #[derive(Default, serde::Serialize)]
-pub struct Input {}
+pub struct Input {
+    #[serde(
+        rename = "incident_policy",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub incident_policy: runtime::InputValue<String>,
+}
 impl runtime::Validate for Input {
     fn validate(&self) -> Result<(), runtime::Error> {
+        runtime::Validate::validate(&self.incident_policy)?;
         Ok(())
     }
 }
@@ -62,6 +69,44 @@ pub struct Output {
     pub implicit_oom_report_rule_hit_count: Option<i64>,
     #[serde(default, rename = "in_rescue_mode")]
     pub in_rescue_mode: Option<bool>,
+    #[serde(default, rename = "incident_accounting_since")]
+    pub incident_accounting_since: Option<String>,
+    #[serde(default, rename = "incident_action_chain_id")]
+    pub incident_action_chain_id: Option<i64>,
+    #[serde(default, rename = "incident_action_state")]
+    pub incident_action_state: Option<String>,
+    #[serde(default, rename = "incident_count_30d")]
+    pub incident_count_30d: Option<i64>,
+    #[serde(default, rename = "incident_count_7d")]
+    pub incident_count_7d: Option<i64>,
+    #[serde(default, rename = "incident_enforcement_enabled")]
+    pub incident_enforcement_enabled: Option<bool>,
+    #[serde(default, rename = "incident_last_incident_at")]
+    pub incident_last_incident_at: Option<String>,
+    #[serde(default, rename = "incident_last_stop_at")]
+    pub incident_last_stop_at: Option<String>,
+    #[serde(default, rename = "incident_last_warning_at")]
+    pub incident_last_warning_at: Option<String>,
+    #[serde(default, rename = "incident_mode")]
+    pub incident_mode: Option<String>,
+    #[serde(default, rename = "incident_next_stop_allowed_at")]
+    pub incident_next_stop_allowed_at: Option<String>,
+    #[serde(default, rename = "incident_policy")]
+    pub incident_policy: Option<String>,
+    #[serde(default, rename = "incident_policy_label")]
+    pub incident_policy_label: Option<String>,
+    #[serde(default, rename = "incident_status")]
+    pub incident_status: Option<String>,
+    #[serde(default, rename = "incident_stop_enforced")]
+    pub incident_stop_enforced: Option<bool>,
+    #[serde(default, rename = "incident_stop_limit")]
+    pub incident_stop_limit: Option<i64>,
+    #[serde(default, rename = "incident_stop_limit_override")]
+    pub incident_stop_limit_override: Option<i64>,
+    #[serde(default, rename = "incident_warning_limit")]
+    pub incident_warning_limit: Option<i64>,
+    #[serde(default, rename = "incident_warning_limit_override")]
+    pub incident_warning_limit_override: Option<i64>,
     #[serde(default, rename = "info")]
     pub info: Option<String>,
     #[serde(default, rename = "is_running")]
@@ -140,7 +185,13 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
     input: Some(runtime::InputSpec {
         layout: runtime::Layout::Object,
         namespace: Some("vps"),
-        parameters: &[],
+        parameters: &[runtime::ParameterSpec {
+            name: "incident_policy",
+            kind: runtime::ParameterKind::String,
+            required: false,
+            nullable: false,
+            protected: false,
+        }],
     }),
     output: Some(runtime::OutputSpec {
         layout: runtime::Layout::Object,
@@ -167,4 +218,9 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
     object_meta: &[],
     auth: runtime::RequestAuth::Configured,
 };
-impl<'a, C: runtime::Mode> runtime::Request<'a, C, Input, Output, Meta> {}
+impl<'a, C: runtime::Mode> runtime::Request<'a, C, Input, Output, Meta> {
+    pub fn incident_policy(mut self, value: impl Into<String>) -> Self {
+        self.input_mut().incident_policy = runtime::InputValue::Value(value.into());
+        self
+    }
+}

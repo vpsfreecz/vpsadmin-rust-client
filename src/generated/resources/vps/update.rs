@@ -74,6 +74,26 @@ pub struct Input {
         skip_serializing_if = "runtime::InputValue::is_unset"
     )]
     pub hostname: runtime::InputValue<String>,
+    #[serde(
+        rename = "incident_enforcement_enabled",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub incident_enforcement_enabled: runtime::InputValue<bool>,
+    #[serde(
+        rename = "incident_policy",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub incident_policy: runtime::InputValue<String>,
+    #[serde(
+        rename = "incident_stop_limit_override",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub incident_stop_limit_override: runtime::InputValue<i64>,
+    #[serde(
+        rename = "incident_warning_limit_override",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub incident_warning_limit_override: runtime::InputValue<i64>,
     #[serde(rename = "info", skip_serializing_if = "runtime::InputValue::is_unset")]
     pub info: runtime::InputValue<String>,
     #[serde(
@@ -145,6 +165,10 @@ impl runtime::Validate for Input {
         runtime::Validate::validate(&self.enable_os_template_auto_update)?;
         runtime::Validate::validate(&self.expiration_date)?;
         runtime::Validate::validate(&self.hostname)?;
+        runtime::Validate::validate(&self.incident_enforcement_enabled)?;
+        runtime::Validate::validate(&self.incident_policy)?;
+        runtime::Validate::validate(&self.incident_stop_limit_override)?;
+        runtime::Validate::validate(&self.incident_warning_limit_override)?;
         runtime::Validate::validate(&self.info)?;
         runtime::Validate::validate(&self.manage_hostname)?;
         runtime::Validate::validate(&self.map_mode)?;
@@ -293,6 +317,34 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
                 kind: runtime::ParameterKind::String,
                 required: false,
                 nullable: false,
+                protected: false,
+            },
+            runtime::ParameterSpec {
+                name: "incident_enforcement_enabled",
+                kind: runtime::ParameterKind::Boolean,
+                required: false,
+                nullable: false,
+                protected: false,
+            },
+            runtime::ParameterSpec {
+                name: "incident_policy",
+                kind: runtime::ParameterKind::String,
+                required: false,
+                nullable: false,
+                protected: false,
+            },
+            runtime::ParameterSpec {
+                name: "incident_stop_limit_override",
+                kind: runtime::ParameterKind::Integer,
+                required: false,
+                nullable: true,
+                protected: false,
+            },
+            runtime::ParameterSpec {
+                name: "incident_warning_limit_override",
+                kind: runtime::ParameterKind::Integer,
+                required: false,
+                nullable: true,
                 protected: false,
             },
             runtime::ParameterSpec {
@@ -484,6 +536,30 @@ impl<'a, C: runtime::Mode> runtime::Request<'a, C, Input, Output, Meta> {
     }
     pub fn hostname(mut self, value: impl Into<String>) -> Self {
         self.input_mut().hostname = runtime::InputValue::Value(value.into());
+        self
+    }
+    pub fn incident_enforcement_enabled(mut self, value: bool) -> Self {
+        self.input_mut().incident_enforcement_enabled = runtime::InputValue::Value(value);
+        self
+    }
+    pub fn incident_policy(mut self, value: impl Into<String>) -> Self {
+        self.input_mut().incident_policy = runtime::InputValue::Value(value.into());
+        self
+    }
+    pub fn incident_stop_limit_override(mut self, value: i64) -> Self {
+        self.input_mut().incident_stop_limit_override = runtime::InputValue::Value(value);
+        self
+    }
+    pub fn incident_stop_limit_override_null(mut self) -> Self {
+        self.input_mut().incident_stop_limit_override = runtime::InputValue::Null;
+        self
+    }
+    pub fn incident_warning_limit_override(mut self, value: i64) -> Self {
+        self.input_mut().incident_warning_limit_override = runtime::InputValue::Value(value);
+        self
+    }
+    pub fn incident_warning_limit_override_null(mut self) -> Self {
+        self.input_mut().incident_warning_limit_override = runtime::InputValue::Null;
         self
     }
     pub fn info(mut self, value: impl Into<String>) -> Self {

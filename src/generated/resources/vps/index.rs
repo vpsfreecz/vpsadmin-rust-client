@@ -23,6 +23,21 @@ pub struct Input {
     )]
     pub hostname_exact: runtime::InputValue<String>,
     #[serde(
+        rename = "incident_enforcement_enabled",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub incident_enforcement_enabled: runtime::InputValue<bool>,
+    #[serde(
+        rename = "incident_policy",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub incident_policy: runtime::InputValue<String>,
+    #[serde(
+        rename = "incident_status",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub incident_status: runtime::InputValue<String>,
+    #[serde(
         rename = "limit",
         skip_serializing_if = "runtime::InputValue::is_unset"
     )]
@@ -58,6 +73,9 @@ impl runtime::Validate for Input {
         runtime::Validate::validate(&self.from_id)?;
         runtime::Validate::validate(&self.hostname_any)?;
         runtime::Validate::validate(&self.hostname_exact)?;
+        runtime::Validate::validate(&self.incident_enforcement_enabled)?;
+        runtime::Validate::validate(&self.incident_policy)?;
+        runtime::Validate::validate(&self.incident_status)?;
         runtime::Validate::validate(&self.limit)?;
         runtime::Validate::validate(&self.location)?;
         runtime::Validate::validate(&self.node)?;
@@ -123,6 +141,44 @@ pub struct Output {
     pub implicit_oom_report_rule_hit_count: Option<i64>,
     #[serde(default, rename = "in_rescue_mode")]
     pub in_rescue_mode: Option<bool>,
+    #[serde(default, rename = "incident_accounting_since")]
+    pub incident_accounting_since: Option<String>,
+    #[serde(default, rename = "incident_action_chain_id")]
+    pub incident_action_chain_id: Option<i64>,
+    #[serde(default, rename = "incident_action_state")]
+    pub incident_action_state: Option<String>,
+    #[serde(default, rename = "incident_count_30d")]
+    pub incident_count_30d: Option<i64>,
+    #[serde(default, rename = "incident_count_7d")]
+    pub incident_count_7d: Option<i64>,
+    #[serde(default, rename = "incident_enforcement_enabled")]
+    pub incident_enforcement_enabled: Option<bool>,
+    #[serde(default, rename = "incident_last_incident_at")]
+    pub incident_last_incident_at: Option<String>,
+    #[serde(default, rename = "incident_last_stop_at")]
+    pub incident_last_stop_at: Option<String>,
+    #[serde(default, rename = "incident_last_warning_at")]
+    pub incident_last_warning_at: Option<String>,
+    #[serde(default, rename = "incident_mode")]
+    pub incident_mode: Option<String>,
+    #[serde(default, rename = "incident_next_stop_allowed_at")]
+    pub incident_next_stop_allowed_at: Option<String>,
+    #[serde(default, rename = "incident_policy")]
+    pub incident_policy: Option<String>,
+    #[serde(default, rename = "incident_policy_label")]
+    pub incident_policy_label: Option<String>,
+    #[serde(default, rename = "incident_status")]
+    pub incident_status: Option<String>,
+    #[serde(default, rename = "incident_stop_enforced")]
+    pub incident_stop_enforced: Option<bool>,
+    #[serde(default, rename = "incident_stop_limit")]
+    pub incident_stop_limit: Option<i64>,
+    #[serde(default, rename = "incident_stop_limit_override")]
+    pub incident_stop_limit_override: Option<i64>,
+    #[serde(default, rename = "incident_warning_limit")]
+    pub incident_warning_limit: Option<i64>,
+    #[serde(default, rename = "incident_warning_limit_override")]
+    pub incident_warning_limit_override: Option<i64>,
     #[serde(default, rename = "info")]
     pub info: Option<String>,
     #[serde(default, rename = "is_running")]
@@ -229,6 +285,27 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
                 protected: false,
             },
             runtime::ParameterSpec {
+                name: "incident_enforcement_enabled",
+                kind: runtime::ParameterKind::Boolean,
+                required: false,
+                nullable: false,
+                protected: false,
+            },
+            runtime::ParameterSpec {
+                name: "incident_policy",
+                kind: runtime::ParameterKind::String,
+                required: false,
+                nullable: false,
+                protected: false,
+            },
+            runtime::ParameterSpec {
+                name: "incident_status",
+                kind: runtime::ParameterKind::String,
+                required: false,
+                nullable: false,
+                protected: false,
+            },
+            runtime::ParameterSpec {
                 name: "limit",
                 kind: runtime::ParameterKind::Integer,
                 required: false,
@@ -326,6 +403,18 @@ impl<'a, C: runtime::Mode> runtime::Request<'a, C, Input, Vec<Output>, Meta> {
     }
     pub fn hostname_exact(mut self, value: impl Into<String>) -> Self {
         self.input_mut().hostname_exact = runtime::InputValue::Value(value.into());
+        self
+    }
+    pub fn incident_enforcement_enabled(mut self, value: bool) -> Self {
+        self.input_mut().incident_enforcement_enabled = runtime::InputValue::Value(value);
+        self
+    }
+    pub fn incident_policy(mut self, value: impl Into<String>) -> Self {
+        self.input_mut().incident_policy = runtime::InputValue::Value(value.into());
+        self
+    }
+    pub fn incident_status(mut self, value: impl Into<String>) -> Self {
+        self.input_mut().incident_status = runtime::InputValue::Value(value.into());
         self
     }
     pub fn limit(mut self, value: i64) -> Self {
