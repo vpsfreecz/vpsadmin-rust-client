@@ -74,6 +74,11 @@ pub struct Input {
         skip_serializing_if = "runtime::InputValue::is_unset"
     )]
     pub hostname: runtime::InputValue<String>,
+    #[serde(
+        rename = "incident_enforcement_enabled",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub incident_enforcement_enabled: runtime::InputValue<bool>,
     #[serde(rename = "info", skip_serializing_if = "runtime::InputValue::is_unset")]
     pub info: runtime::InputValue<String>,
     #[serde(
@@ -145,6 +150,7 @@ impl runtime::Validate for Input {
         runtime::Validate::validate(&self.enable_os_template_auto_update)?;
         runtime::Validate::validate(&self.expiration_date)?;
         runtime::Validate::validate(&self.hostname)?;
+        runtime::Validate::validate(&self.incident_enforcement_enabled)?;
         runtime::Validate::validate(&self.info)?;
         runtime::Validate::validate(&self.manage_hostname)?;
         runtime::Validate::validate(&self.map_mode)?;
@@ -291,6 +297,13 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
             runtime::ParameterSpec {
                 name: "hostname",
                 kind: runtime::ParameterKind::String,
+                required: false,
+                nullable: false,
+                protected: false,
+            },
+            runtime::ParameterSpec {
+                name: "incident_enforcement_enabled",
+                kind: runtime::ParameterKind::Boolean,
                 required: false,
                 nullable: false,
                 protected: false,
@@ -484,6 +497,10 @@ impl<'a, C: runtime::Mode> runtime::Request<'a, C, Input, Output, Meta> {
     }
     pub fn hostname(mut self, value: impl Into<String>) -> Self {
         self.input_mut().hostname = runtime::InputValue::Value(value.into());
+        self
+    }
+    pub fn incident_enforcement_enabled(mut self, value: bool) -> Self {
+        self.input_mut().incident_enforcement_enabled = runtime::InputValue::Value(value);
         self
     }
     pub fn info(mut self, value: impl Into<String>) -> Self {

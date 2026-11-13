@@ -62,6 +62,22 @@ pub struct Output {
     pub implicit_oom_report_rule_hit_count: Option<i64>,
     #[serde(default, rename = "in_rescue_mode")]
     pub in_rescue_mode: Option<bool>,
+    #[serde(default, rename = "incident_accounting_since")]
+    pub incident_accounting_since: Option<String>,
+    #[serde(default, rename = "incident_action_chain_id")]
+    pub incident_action_chain_id: Option<i64>,
+    #[serde(default, rename = "incident_action_state")]
+    pub incident_action_state: Option<String>,
+    #[serde(default, rename = "incident_enforcement_enabled")]
+    pub incident_enforcement_enabled: Option<bool>,
+    #[serde(default, rename = "incident_last_stop_at")]
+    pub incident_last_stop_at: Option<String>,
+    #[serde(default, rename = "incident_next_stop_allowed_at")]
+    pub incident_next_stop_allowed_at: Option<String>,
+    #[serde(default, rename = "incident_stop_threshold_count")]
+    pub incident_stop_threshold_count: Option<i64>,
+    #[serde(default, rename = "incident_warning_count")]
+    pub incident_warning_count: Option<i64>,
     #[serde(default, rename = "info")]
     pub info: Option<String>,
     #[serde(default, rename = "is_running")]

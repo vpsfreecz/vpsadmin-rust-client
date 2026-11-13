@@ -29,6 +29,14 @@ pub struct Output {
     #[doc = "Association keys: ID=id, label=label"]
     #[serde(default, rename = "mailbox")]
     pub mailbox: Option<runtime::Association>,
+    #[serde(default, rename = "notice_kind")]
+    pub notice_kind: Option<String>,
+    #[serde(default, rename = "notice_mail_state")]
+    pub notice_mail_state: Option<String>,
+    #[serde(default, rename = "notice_policy_key")]
+    pub notice_policy_key: Option<String>,
+    #[serde(default, rename = "notice_policy_label")]
+    pub notice_policy_label: Option<String>,
     #[serde(default, rename = "raw_user_id")]
     pub raw_user_id: Option<i64>,
     #[serde(default, rename = "raw_vps_id")]
@@ -39,6 +47,8 @@ pub struct Output {
     pub subject: Option<String>,
     #[serde(default, rename = "text")]
     pub text: Option<String>,
+    #[serde(default, rename = "trigger_incident_report_id")]
+    pub trigger_incident_report_id: Option<i64>,
     #[doc = "Association keys: ID=id, label=login"]
     #[serde(default, rename = "user")]
     pub user: Option<runtime::Association>,

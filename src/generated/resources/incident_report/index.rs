@@ -37,6 +37,11 @@ pub struct Input {
         skip_serializing_if = "runtime::InputValue::is_unset"
     )]
     pub mailbox: runtime::InputValue<i64>,
+    #[serde(
+        rename = "policy_key",
+        skip_serializing_if = "runtime::InputValue::is_unset"
+    )]
+    pub policy_key: runtime::InputValue<String>,
     #[serde(rename = "user", skip_serializing_if = "runtime::InputValue::is_unset")]
     pub user: runtime::InputValue<i64>,
     #[serde(rename = "vps", skip_serializing_if = "runtime::InputValue::is_unset")]
@@ -51,6 +56,7 @@ impl runtime::Validate for Input {
         runtime::Validate::validate(&self.ip_address_assignment)?;
         runtime::Validate::validate(&self.limit)?;
         runtime::Validate::validate(&self.mailbox)?;
+        runtime::Validate::validate(&self.policy_key)?;
         runtime::Validate::validate(&self.user)?;
         runtime::Validate::validate(&self.vps)?;
         Ok(())
@@ -78,6 +84,14 @@ pub struct Output {
     #[doc = "Association keys: ID=id, label=label"]
     #[serde(default, rename = "mailbox")]
     pub mailbox: Option<runtime::Association>,
+    #[serde(default, rename = "notice_kind")]
+    pub notice_kind: Option<String>,
+    #[serde(default, rename = "notice_mail_state")]
+    pub notice_mail_state: Option<String>,
+    #[serde(default, rename = "notice_policy_key")]
+    pub notice_policy_key: Option<String>,
+    #[serde(default, rename = "notice_policy_label")]
+    pub notice_policy_label: Option<String>,
     #[serde(default, rename = "raw_user_id")]
     pub raw_user_id: Option<i64>,
     #[serde(default, rename = "raw_vps_id")]
@@ -88,6 +102,8 @@ pub struct Output {
     pub subject: Option<String>,
     #[serde(default, rename = "text")]
     pub text: Option<String>,
+    #[serde(default, rename = "trigger_incident_report_id")]
+    pub trigger_incident_report_id: Option<i64>,
     #[doc = "Association keys: ID=id, label=login"]
     #[serde(default, rename = "user")]
     pub user: Option<runtime::Association>,
@@ -165,6 +181,13 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
                 kind: runtime::ParameterKind::Resource,
                 required: false,
                 nullable: true,
+                protected: false,
+            },
+            runtime::ParameterSpec {
+                name: "policy_key",
+                kind: runtime::ParameterKind::String,
+                required: false,
+                nullable: false,
                 protected: false,
             },
             runtime::ParameterSpec {
@@ -246,6 +269,10 @@ impl<'a, C: runtime::Mode> runtime::Request<'a, C, Input, Vec<Output>, Meta> {
     }
     pub fn mailbox_null(mut self) -> Self {
         self.input_mut().mailbox = runtime::InputValue::Null;
+        self
+    }
+    pub fn policy_key(mut self, value: impl Into<String>) -> Self {
+        self.input_mut().policy_key = runtime::InputValue::Value(value.into());
         self
     }
     pub fn user(mut self, value: i64) -> Self {

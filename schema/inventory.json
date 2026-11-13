@@ -1,5 +1,5 @@
 {
-  "action_count": 526,
+  "action_count": 532,
   "actions": [
     {
       "method": "POST",
@@ -14035,6 +14035,114 @@
       "path": "/v7.0/host_ip_addresses/{host_ip_address_id}"
     },
     {
+      "method": "GET",
+      "name": [
+        "incident_policy",
+        "index"
+      ],
+      "parameters": [
+        [
+          "incident_policy",
+          "index",
+          "output",
+          "description"
+        ],
+        [
+          "incident_policy",
+          "index",
+          "output",
+          "key"
+        ],
+        [
+          "incident_policy",
+          "index",
+          "output",
+          "label"
+        ],
+        [
+          "incident_policy",
+          "index",
+          "output",
+          "settings_category"
+        ],
+        [
+          "incident_policy",
+          "index",
+          "output",
+          "stop_period_days"
+        ],
+        [
+          "incident_policy",
+          "index",
+          "output",
+          "warning_period_days"
+        ],
+        [
+          "incident_policy",
+          "index",
+          "meta",
+          "global",
+          "input",
+          "no"
+        ]
+      ],
+      "path": "/v7.0/incident_policies"
+    },
+    {
+      "method": "GET",
+      "name": [
+        "incident_policy",
+        "show"
+      ],
+      "parameters": [
+        [
+          "incident_policy",
+          "show",
+          "output",
+          "description"
+        ],
+        [
+          "incident_policy",
+          "show",
+          "output",
+          "key"
+        ],
+        [
+          "incident_policy",
+          "show",
+          "output",
+          "label"
+        ],
+        [
+          "incident_policy",
+          "show",
+          "output",
+          "settings_category"
+        ],
+        [
+          "incident_policy",
+          "show",
+          "output",
+          "stop_period_days"
+        ],
+        [
+          "incident_policy",
+          "show",
+          "output",
+          "warning_period_days"
+        ],
+        [
+          "incident_policy",
+          "show",
+          "meta",
+          "global",
+          "input",
+          "no"
+        ]
+      ],
+      "path": "/v7.0/incident_policies/{key}"
+    },
+    {
       "method": "POST",
       "name": [
         "incident_report",
@@ -14281,6 +14389,12 @@
           "incident_report",
           "index",
           "input",
+          "policy_key"
+        ],
+        [
+          "incident_report",
+          "index",
+          "input",
           "user"
         ],
         [
@@ -14341,6 +14455,30 @@
           "incident_report",
           "index",
           "output",
+          "notice_kind"
+        ],
+        [
+          "incident_report",
+          "index",
+          "output",
+          "notice_mail_state"
+        ],
+        [
+          "incident_report",
+          "index",
+          "output",
+          "notice_policy_key"
+        ],
+        [
+          "incident_report",
+          "index",
+          "output",
+          "notice_policy_label"
+        ],
+        [
+          "incident_report",
+          "index",
+          "output",
           "raw_user_id"
         ],
         [
@@ -14366,6 +14504,12 @@
           "index",
           "output",
           "text"
+        ],
+        [
+          "incident_report",
+          "index",
+          "output",
+          "trigger_incident_report_id"
         ],
         [
           "incident_report",
@@ -14495,6 +14639,30 @@
           "incident_report",
           "show",
           "output",
+          "notice_kind"
+        ],
+        [
+          "incident_report",
+          "show",
+          "output",
+          "notice_mail_state"
+        ],
+        [
+          "incident_report",
+          "show",
+          "output",
+          "notice_policy_key"
+        ],
+        [
+          "incident_report",
+          "show",
+          "output",
+          "notice_policy_label"
+        ],
+        [
+          "incident_report",
+          "show",
+          "output",
           "raw_user_id"
         ],
         [
@@ -14520,6 +14688,12 @@
           "show",
           "output",
           "text"
+        ],
+        [
+          "incident_report",
+          "show",
+          "output",
+          "trigger_incident_report_id"
         ],
         [
           "incident_report",
@@ -14573,6 +14747,138 @@
         ]
       ],
       "path": "/v7.0/incident_reports/{incident_report_id}"
+    },
+    {
+      "method": "GET",
+      "name": [
+        "incident_report",
+        "policy_evaluation",
+        "index"
+      ],
+      "parameters": [
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "count_30d"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "count_7d"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "decision"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "effective_mode"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "error_class"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "error_stage"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "evaluated_at"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "label"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "matched"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "policy_key"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "state"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "stop_enforced"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "stop_limit"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "stop_period_days"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "warning_limit"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "output",
+          "warning_period_days"
+        ],
+        [
+          "incident_report",
+          "policy_evaluation",
+          "index",
+          "meta",
+          "global",
+          "input",
+          "no"
+        ]
+      ],
+      "path": "/v7.0/incident_reports/{incident_report_id}/policy_evaluations"
     },
     {
       "method": "GET",
@@ -58019,6 +58325,54 @@
           "vps",
           "clone",
           "output",
+          "incident_accounting_since"
+        ],
+        [
+          "vps",
+          "clone",
+          "output",
+          "incident_action_chain_id"
+        ],
+        [
+          "vps",
+          "clone",
+          "output",
+          "incident_action_state"
+        ],
+        [
+          "vps",
+          "clone",
+          "output",
+          "incident_enforcement_enabled"
+        ],
+        [
+          "vps",
+          "clone",
+          "output",
+          "incident_last_stop_at"
+        ],
+        [
+          "vps",
+          "clone",
+          "output",
+          "incident_next_stop_allowed_at"
+        ],
+        [
+          "vps",
+          "clone",
+          "output",
+          "incident_stop_threshold_count"
+        ],
+        [
+          "vps",
+          "clone",
+          "output",
+          "incident_warning_count"
+        ],
+        [
+          "vps",
+          "clone",
+          "output",
           "info"
         ],
         [
@@ -58537,6 +58891,54 @@
           "vps",
           "create",
           "output",
+          "incident_accounting_since"
+        ],
+        [
+          "vps",
+          "create",
+          "output",
+          "incident_action_chain_id"
+        ],
+        [
+          "vps",
+          "create",
+          "output",
+          "incident_action_state"
+        ],
+        [
+          "vps",
+          "create",
+          "output",
+          "incident_enforcement_enabled"
+        ],
+        [
+          "vps",
+          "create",
+          "output",
+          "incident_last_stop_at"
+        ],
+        [
+          "vps",
+          "create",
+          "output",
+          "incident_next_stop_allowed_at"
+        ],
+        [
+          "vps",
+          "create",
+          "output",
+          "incident_stop_threshold_count"
+        ],
+        [
+          "vps",
+          "create",
+          "output",
+          "incident_warning_count"
+        ],
+        [
+          "vps",
+          "create",
+          "output",
           "info"
         ],
         [
@@ -58885,6 +59287,24 @@
           "vps",
           "index",
           "input",
+          "incident_enforcement_enabled"
+        ],
+        [
+          "vps",
+          "index",
+          "input",
+          "incident_policy"
+        ],
+        [
+          "vps",
+          "index",
+          "input",
+          "incident_status"
+        ],
+        [
+          "vps",
+          "index",
+          "input",
           "limit"
         ],
         [
@@ -59072,6 +59492,54 @@
           "index",
           "output",
           "in_rescue_mode"
+        ],
+        [
+          "vps",
+          "index",
+          "output",
+          "incident_accounting_since"
+        ],
+        [
+          "vps",
+          "index",
+          "output",
+          "incident_action_chain_id"
+        ],
+        [
+          "vps",
+          "index",
+          "output",
+          "incident_action_state"
+        ],
+        [
+          "vps",
+          "index",
+          "output",
+          "incident_enforcement_enabled"
+        ],
+        [
+          "vps",
+          "index",
+          "output",
+          "incident_last_stop_at"
+        ],
+        [
+          "vps",
+          "index",
+          "output",
+          "incident_next_stop_allowed_at"
+        ],
+        [
+          "vps",
+          "index",
+          "output",
+          "incident_stop_threshold_count"
+        ],
+        [
+          "vps",
+          "index",
+          "output",
+          "incident_warning_count"
         ],
         [
           "vps",
@@ -59699,6 +60167,54 @@
           "vps",
           "replace",
           "output",
+          "incident_accounting_since"
+        ],
+        [
+          "vps",
+          "replace",
+          "output",
+          "incident_action_chain_id"
+        ],
+        [
+          "vps",
+          "replace",
+          "output",
+          "incident_action_state"
+        ],
+        [
+          "vps",
+          "replace",
+          "output",
+          "incident_enforcement_enabled"
+        ],
+        [
+          "vps",
+          "replace",
+          "output",
+          "incident_last_stop_at"
+        ],
+        [
+          "vps",
+          "replace",
+          "output",
+          "incident_next_stop_allowed_at"
+        ],
+        [
+          "vps",
+          "replace",
+          "output",
+          "incident_stop_threshold_count"
+        ],
+        [
+          "vps",
+          "replace",
+          "output",
+          "incident_warning_count"
+        ],
+        [
+          "vps",
+          "replace",
+          "output",
           "info"
         ],
         [
@@ -60114,6 +60630,54 @@
           "show",
           "output",
           "in_rescue_mode"
+        ],
+        [
+          "vps",
+          "show",
+          "output",
+          "incident_accounting_since"
+        ],
+        [
+          "vps",
+          "show",
+          "output",
+          "incident_action_chain_id"
+        ],
+        [
+          "vps",
+          "show",
+          "output",
+          "incident_action_state"
+        ],
+        [
+          "vps",
+          "show",
+          "output",
+          "incident_enforcement_enabled"
+        ],
+        [
+          "vps",
+          "show",
+          "output",
+          "incident_last_stop_at"
+        ],
+        [
+          "vps",
+          "show",
+          "output",
+          "incident_next_stop_allowed_at"
+        ],
+        [
+          "vps",
+          "show",
+          "output",
+          "incident_stop_threshold_count"
+        ],
+        [
+          "vps",
+          "show",
+          "output",
+          "incident_warning_count"
         ],
         [
           "vps",
@@ -60568,6 +61132,12 @@
           "update",
           "input",
           "hostname"
+        ],
+        [
+          "vps",
+          "update",
+          "input",
+          "incident_enforcement_enabled"
         ],
         [
           "vps",
@@ -61201,6 +61771,542 @@
         ]
       ],
       "path": "/v7.0/vpses/{vps_id}/features/update_all"
+    },
+    {
+      "method": "GET",
+      "name": [
+        "vps",
+        "incident_policy",
+        "index"
+      ],
+      "parameters": [
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "configuration_valid"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "count_30d"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "count_7d"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "description"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "effective_mode"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "evaluated_at"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "evaluation_report_id"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "evaluation_state"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "global_mode"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "key"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "label"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "last_incident_at"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "last_warning_at"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "settings_category"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "status"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "stop_enforced"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "stop_limit"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "stop_limit_override"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "stop_period_days"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "warning_limit"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "warning_limit_override"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "output",
+          "warning_period_days"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "index",
+          "meta",
+          "global",
+          "input",
+          "no"
+        ]
+      ],
+      "path": "/v7.0/vpses/{vps_id}/incident_policies"
+    },
+    {
+      "method": "GET",
+      "name": [
+        "vps",
+        "incident_policy",
+        "show"
+      ],
+      "parameters": [
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "configuration_valid"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "count_30d"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "count_7d"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "description"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "effective_mode"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "evaluated_at"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "evaluation_report_id"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "evaluation_state"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "global_mode"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "key"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "label"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "last_incident_at"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "last_warning_at"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "settings_category"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "status"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "stop_enforced"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "stop_limit"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "stop_limit_override"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "stop_period_days"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "warning_limit"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "warning_limit_override"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "output",
+          "warning_period_days"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "show",
+          "meta",
+          "global",
+          "input",
+          "no"
+        ]
+      ],
+      "path": "/v7.0/vpses/{vps_id}/incident_policies/{key}"
+    },
+    {
+      "method": "PUT",
+      "name": [
+        "vps",
+        "incident_policy",
+        "update"
+      ],
+      "parameters": [
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "input",
+          "stop_limit_override"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "input",
+          "warning_limit_override"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "configuration_valid"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "count_30d"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "count_7d"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "description"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "effective_mode"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "evaluated_at"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "evaluation_report_id"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "evaluation_state"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "global_mode"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "key"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "label"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "last_incident_at"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "last_warning_at"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "settings_category"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "status"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "stop_enforced"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "stop_limit"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "stop_limit_override"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "stop_period_days"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "warning_limit"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "warning_limit_override"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "output",
+          "warning_period_days"
+        ],
+        [
+          "vps",
+          "incident_policy",
+          "update",
+          "meta",
+          "global",
+          "input",
+          "no"
+        ]
+      ],
+      "path": "/v7.0/vpses/{vps_id}/incident_policies/{key}"
     },
     {
       "method": "GET",
@@ -64870,9 +65976,9 @@
   ],
   "api_version": "7.0",
   "coverage": "declared source fixture with all six bundled plugins",
-  "parameter_count": 8760,
+  "parameter_count": 8917,
   "profile": "vpsadmin-full-fixture",
-  "resource_count": 152,
+  "resource_count": 155,
   "resources": [
     [
       "action_state"
@@ -64981,7 +66087,14 @@
       "host_ip_address"
     ],
     [
+      "incident_policy"
+    ],
+    [
       "incident_report"
+    ],
+    [
+      "incident_report",
+      "policy_evaluation"
     ],
     [
       "incoming_payment"
@@ -65333,6 +66446,10 @@
     ],
     [
       "vps",
+      "incident_policy"
+    ],
+    [
+      "vps",
       "maintenance_window"
     ],
     [
@@ -65380,5 +66497,5 @@
       "token"
     ]
   ],
-  "schema_sha256": "d6ec617653913c56e92398a6032aa350118597a0e3f45c599bc92b6071ea0a26"
+  "schema_sha256": "7cb28ebd8e0957d9a8ba2c359c8658040ed1cd195f0dd14327c03b595012fc85"
 }

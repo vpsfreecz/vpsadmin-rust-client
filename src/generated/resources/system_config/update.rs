@@ -62,7 +62,7 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
             name: "value",
             kind: runtime::ParameterKind::Custom,
             required: false,
-            nullable: false,
+            nullable: true,
             protected: false,
         }],
     }),
@@ -94,6 +94,10 @@ pub static SPEC: runtime::ActionSpec = runtime::ActionSpec {
 impl<'a, C: runtime::Mode> runtime::Request<'a, C, Input, Output, Meta> {
     pub fn value(mut self, value: serde_json::Value) -> Self {
         self.input_mut().value = runtime::InputValue::Value(value);
+        self
+    }
+    pub fn value_null(mut self) -> Self {
+        self.input_mut().value = runtime::InputValue::Null;
         self
     }
 }
