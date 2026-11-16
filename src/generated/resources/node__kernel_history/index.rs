@@ -45,6 +45,8 @@ pub struct Output {
     pub id: Option<i64>,
     #[serde(default, rename = "livepatch_action")]
     pub livepatch_action: Option<String>,
+    #[serde(default, rename = "livepatch_id")]
+    pub livepatch_id: Option<String>,
     #[serde(default, rename = "observed_after")]
     pub observed_after: Option<String>,
     #[serde(default, rename = "observed_before")]

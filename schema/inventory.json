@@ -29347,6 +29347,13 @@
           "kernel_history",
           "index",
           "output",
+          "livepatch_id"
+        ],
+        [
+          "node",
+          "kernel_history",
+          "index",
+          "output",
           "observed_after"
         ],
         [
@@ -31128,6 +31135,12 @@
           "node_kernel_event",
           "index",
           "output",
+          "livepatch_id"
+        ],
+        [
+          "node_kernel_event",
+          "index",
+          "output",
           "node"
         ],
         [
@@ -31331,6 +31344,12 @@
           "show",
           "output",
           "livepatch_action"
+        ],
+        [
+          "node_kernel_event",
+          "show",
+          "output",
+          "livepatch_id"
         ],
         [
           "node_kernel_event",
@@ -64870,7 +64889,7 @@
   ],
   "api_version": "7.0",
   "coverage": "declared source fixture with all six bundled plugins",
-  "parameter_count": 8760,
+  "parameter_count": 8763,
   "profile": "vpsadmin-full-fixture",
   "resource_count": 152,
   "resources": [
@@ -65380,5 +65399,5 @@
       "token"
     ]
   ],
-  "schema_sha256": "d6ec617653913c56e92398a6032aa350118597a0e3f45c599bc92b6071ea0a26"
+  "schema_sha256": "2ee994bbfcae80d79611d718a295cdd11457e1e2a9d2646d6a224cf5bcd68ca8"
 }

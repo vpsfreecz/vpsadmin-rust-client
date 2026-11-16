@@ -100,6 +100,8 @@ pub struct Output {
     pub kernel_source_revision: Option<String>,
     #[serde(default, rename = "livepatch_action")]
     pub livepatch_action: Option<String>,
+    #[serde(default, rename = "livepatch_id")]
+    pub livepatch_id: Option<String>,
     #[doc = "Association keys: ID=id, label=domain_name"]
     #[serde(default, rename = "node")]
     pub node: Option<runtime::Association>,
