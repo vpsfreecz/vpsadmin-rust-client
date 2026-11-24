@@ -87,6 +87,17 @@ be unavailable. Mail state `pending` means the notice has not been queued.
 `queued` does not establish SMTP success; `sent` means SMTP succeeded, without
 proving delivery to the recipient's inbox.
 
+Administrators can use `incident_policy_exposure().index()` for current
+VPS/policy matches and `incident_policy_evaluation().index()` for saved
+evaluations with current action and mail outcomes. Both use `.offset()` and
+`.limit()`. Their global response metadata includes `total_count`, `offset`,
+`limit`, `next_offset`, `as_of` and `read_at`; History also returns `from` and
+`to`. These values use `Option`, so preserve `None` when a value is unavailable.
+Keep the returned `as_of` when requesting another page. It fixes the counting
+and recording cutoff; settings, ownership and outcomes reflect each read.
+History orders by evaluation time and ID, with `.direction()` selecting
+ascending or descending order.
+
 ## Offline generation
 
 Obtain a clean, separate HaveAPI checkout at the exact revision recorded in
