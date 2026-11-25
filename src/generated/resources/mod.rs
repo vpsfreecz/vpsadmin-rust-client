@@ -52,6 +52,9 @@ pub mod incident_policy_exposure;
 pub mod incident_report;
 // Double underscores preserve resource component boundaries in the public API.
 #[allow(non_snake_case)]
+pub mod incident_report__evidence_interval;
+// Double underscores preserve resource component boundaries in the public API.
+#[allow(non_snake_case)]
 pub mod incident_report__policy_evaluation;
 pub mod incoming_payment;
 pub mod ip_address;
@@ -223,6 +226,9 @@ pub mod vps;
 pub mod vps__console_token;
 // Double underscores preserve resource component boundaries in the public API.
 #[allow(non_snake_case)]
+pub mod vps__evidence;
+// Double underscores preserve resource component boundaries in the public API.
+#[allow(non_snake_case)]
 pub mod vps__feature;
 // Double underscores preserve resource component boundaries in the public API.
 #[allow(non_snake_case)]
@@ -242,7 +248,9 @@ pub mod vps__state_log;
 // Double underscores preserve resource component boundaries in the public API.
 #[allow(non_snake_case)]
 pub mod vps__status;
+pub mod vps_evidence;
 pub mod vps_outage;
+pub mod vps_pressure_history;
 pub mod vps_security_advisory;
 pub mod vps_user_data;
 pub mod webauthn;
