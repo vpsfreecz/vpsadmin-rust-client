@@ -2,6 +2,7 @@ use crate::runtime;
 use std::collections::BTreeMap;
 pub mod create;
 pub mod delete;
+pub mod disable_backups;
 pub mod find_by_name;
 pub mod index;
 pub mod inherit;
@@ -50,6 +51,26 @@ impl<'a, C: runtime::Mode> Handle<'a, C> {
         let mut path_params = self.path_params.clone();
         path_params.insert("dataset_id".to_owned(), dataset_id.to_string());
         runtime::Request::new(self.client, &delete::SPEC, path_params, Default::default())
+    }
+    pub fn disable_backups(
+        &self,
+        dataset_id: impl ToString,
+    ) -> runtime::Request<
+        'a,
+        C,
+        disable_backups::Input,
+        disable_backups::Output,
+        disable_backups::Meta,
+    > {
+        #[allow(unused_mut)]
+        let mut path_params = self.path_params.clone();
+        path_params.insert("dataset_id".to_owned(), dataset_id.to_string());
+        runtime::Request::new(
+            self.client,
+            &disable_backups::SPEC,
+            path_params,
+            Default::default(),
+        )
     }
     pub fn find_by_name(
         &self,

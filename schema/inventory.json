@@ -1,5 +1,5 @@
 {
-  "action_count": 532,
+  "action_count": 535,
   "actions": [
     {
       "method": "POST",
@@ -2358,6 +2358,68 @@
         ]
       ],
       "path": "/v7.0/datasets/{dataset_id}"
+    },
+    {
+      "method": "POST",
+      "name": [
+        "dataset",
+        "disable_backups"
+      ],
+      "parameters": [
+        [
+          "dataset",
+          "disable_backups",
+          "input",
+          "backup_first"
+        ],
+        [
+          "dataset",
+          "disable_backups",
+          "input",
+          "recursive"
+        ],
+        [
+          "dataset",
+          "disable_backups",
+          "meta",
+          "global",
+          "input",
+          "includes"
+        ],
+        [
+          "dataset",
+          "disable_backups",
+          "meta",
+          "global",
+          "input",
+          "no"
+        ],
+        [
+          "dataset",
+          "disable_backups",
+          "meta",
+          "global",
+          "output",
+          "action_state_id"
+        ],
+        [
+          "dataset",
+          "disable_backups",
+          "meta",
+          "object",
+          "output",
+          "path_params"
+        ],
+        [
+          "dataset",
+          "disable_backups",
+          "meta",
+          "object",
+          "output",
+          "resolved"
+        ]
+      ],
+      "path": "/v7.0/datasets/{dataset_id}/disable_backups"
     },
     {
       "method": "GET",
@@ -14141,6 +14203,742 @@
         ]
       ],
       "path": "/v7.0/incident_policies/{key}"
+    },
+    {
+      "method": "GET",
+      "name": [
+        "incident_policy_evaluation",
+        "index"
+      ],
+      "parameters": [
+        [
+          "incident_policy_evaluation",
+          "index",
+          "input",
+          "action_kind"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "input",
+          "action_state"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "input",
+          "as_of"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "input",
+          "decision"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "input",
+          "direction"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "input",
+          "from"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "input",
+          "limit"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "input",
+          "mail_state"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "input",
+          "offset"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "input",
+          "policy_key"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "input",
+          "scope"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "input",
+          "to"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "input",
+          "user_id"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "input",
+          "vps_id"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "action_created_at"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "action_id"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "action_kind"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "action_state"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "action_updated_at"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "count_30d"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "count_7d"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "decision"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "detected_at"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "effective_mode"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "evaluated_at"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "hostname"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "id"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "incident_report_id"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "label"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "mail_finished_at"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "mail_queued_at"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "mail_state"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "matched"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "notice_report_id"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "physical_stop_action_id"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "policy_key"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "state"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "stop_completed_at"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "stop_enforced"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "stop_limit"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "stop_period_days"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "threshold_status"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "transaction_chain_id"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "user_id"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "user_login"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "vps_id"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "warning_limit"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "output",
+          "warning_period_days"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "meta",
+          "global",
+          "input",
+          "no"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "as_of"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "from"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "limit"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "next_offset"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "offset"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "read_at"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "to"
+        ],
+        [
+          "incident_policy_evaluation",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "total_count"
+        ]
+      ],
+      "path": "/v7.0/incident_policy_evaluations"
+    },
+    {
+      "method": "GET",
+      "name": [
+        "incident_policy_exposure",
+        "index"
+      ],
+      "parameters": [
+        [
+          "incident_policy_exposure",
+          "index",
+          "input",
+          "as_of"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "input",
+          "direction"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "input",
+          "effective_mode"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "input",
+          "limit"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "input",
+          "node"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "input",
+          "offset"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "input",
+          "policy_key"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "input",
+          "sort"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "input",
+          "status"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "input",
+          "stop_enforced"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "input",
+          "user"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "input",
+          "vps"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "accounting_since"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "configuration_valid"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "count_30d"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "count_7d"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "effective_mode"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "global_mode"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "id"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "label"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "last_incident_at"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "last_stop_at"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "last_warning_at"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "latest_action_chain_id"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "latest_action_id"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "latest_action_kind"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "latest_action_state"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "latest_mail_state"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "latest_notice_report_id"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "latest_stop_completed_at"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "next_stop_allowed_at"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "next_warning_allowed_at"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "node"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "outstanding_stop_action_id"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "outstanding_stop_chain_id"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "outstanding_stop_state"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "owner_active"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "policy_key"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "status"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "stop_enforced"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "stop_limit"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "stop_period_days"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "stop_remaining"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "transfer_pending"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "user"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "vps"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "warning_limit"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "warning_period_days"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "warning_permitted"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "output",
+          "warning_remaining"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "meta",
+          "global",
+          "input",
+          "no"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "as_of"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "limit"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "next_offset"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "offset"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "read_at"
+        ],
+        [
+          "incident_policy_exposure",
+          "index",
+          "meta",
+          "global",
+          "output",
+          "total_count"
+        ]
+      ],
+      "path": "/v7.0/incident_policy_exposures"
     },
     {
       "method": "POST",
@@ -46007,6 +46805,12 @@
           "system_config",
           "index",
           "output",
+          "choices"
+        ],
+        [
+          "system_config",
+          "index",
+          "output",
           "description"
         ],
         [
@@ -46050,6 +46854,12 @@
           "index",
           "output",
           "value"
+        ],
+        [
+          "system_config",
+          "index",
+          "output",
+          "value_nullable"
         ],
         [
           "system_config",
@@ -46119,6 +46929,12 @@
           "system_config",
           "show",
           "output",
+          "choices"
+        ],
+        [
+          "system_config",
+          "show",
+          "output",
           "description"
         ],
         [
@@ -46162,6 +46978,12 @@
           "show",
           "output",
           "value"
+        ],
+        [
+          "system_config",
+          "show",
+          "output",
+          "value_nullable"
         ],
         [
           "system_config",
@@ -46221,6 +47043,12 @@
           "system_config",
           "update",
           "output",
+          "choices"
+        ],
+        [
+          "system_config",
+          "update",
+          "output",
           "description"
         ],
         [
@@ -46264,6 +47092,12 @@
           "update",
           "output",
           "value"
+        ],
+        [
+          "system_config",
+          "update",
+          "output",
+          "value_nullable"
         ],
         [
           "system_config",
@@ -65975,10 +66809,10 @@
     }
   ],
   "api_version": "7.0",
-  "coverage": "declared source fixture with all six bundled plugins",
-  "parameter_count": 8917,
+  "coverage": "captured description only; plugin coverage unknown",
+  "parameter_count": 9044,
   "profile": "vpsadmin-full-fixture",
-  "resource_count": 155,
+  "resource_count": 157,
   "resources": [
     [
       "action_state"
@@ -66088,6 +66922,12 @@
     ],
     [
       "incident_policy"
+    ],
+    [
+      "incident_policy_evaluation"
+    ],
+    [
+      "incident_policy_exposure"
     ],
     [
       "incident_report"
@@ -66497,5 +67337,5 @@
       "token"
     ]
   ],
-  "schema_sha256": "7cb28ebd8e0957d9a8ba2c359c8658040ed1cd195f0dd14327c03b595012fc85"
+  "schema_sha256": "7088ef00b82964437746ad3e46b3ca78da515b8fde18cae46f1c275ef68f9bf9"
 }
