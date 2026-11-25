@@ -47,6 +47,8 @@ pub mod export_outage;
 pub mod help_box;
 pub mod host_ip_address;
 pub mod incident_policy;
+pub mod incident_policy_evaluation;
+pub mod incident_policy_exposure;
 pub mod incident_report;
 // Double underscores preserve resource component boundaries in the public API.
 #[allow(non_snake_case)]

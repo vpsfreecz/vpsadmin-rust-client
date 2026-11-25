@@ -31,6 +31,8 @@ impl runtime::Validate for Input {
 pub struct Output {
     #[serde(default, rename = "category")]
     pub category: Option<String>,
+    #[serde(default, rename = "choices")]
+    pub choices: Option<serde_json::Value>,
     #[serde(default, rename = "description")]
     pub description: Option<String>,
     #[serde(default, rename = "label")]
@@ -47,6 +49,8 @@ pub struct Output {
     pub type_: Option<String>,
     #[serde(default, rename = "value")]
     pub value: Option<serde_json::Value>,
+    #[serde(default, rename = "value_nullable")]
+    pub value_nullable: Option<bool>,
     #[serde(default, rename = "_meta")]
     pub object_meta: Option<runtime::JsonMap>,
     #[serde(flatten)]
