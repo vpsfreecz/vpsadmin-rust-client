@@ -33,6 +33,8 @@ and fixture/configuration hashes, dependency identities and schema digest.
 `schema/provenance.json` binds that receipt and schema to this client's generator,
 copied runtime, generator dependency lock and toolchain. `schema/inventory.json`
 describes the exported resources, actions and parameters.
+The saved export contains 160 application resources, 534 actions and 9,176
+parameters; authentication resources and actions are counted separately.
 
 To refresh the schema, follow vpsAdmin's
 [schema export and generated-client synchronization procedure](https://github.com/vpsfreecz/vpsadmin/blob/master/docs/api-schema-export.md#generated-client-synchronization),
@@ -86,6 +88,99 @@ warning from a confirmed stop. The triggering report ID is an integer and may
 be unavailable. Mail state `pending` means the notice has not been queued.
 `queued` does not establish SMTP success; `sent` means SMTP succeeded, without
 proving delivery to the recipient's inbox.
+
+### VPS evidence
+
+Read the intervals saved with an incident through
+`api.incident_report__evidence_interval(report_id).index().offset(0).limit(100).send().await?`.
+Pagination starts at offset 0, defaults to 25 rows and allows at most 100 rows.
+Rows retain timestamp strings with microsecond precision, credited duration in
+integer microseconds and optional typed peak measurements. Read `measurement`
+and `peak_unit` with `peak_value`; `peak_is_lower_bound` identifies an unfinished
+contributing observation. Preserve `None` when these values are unavailable.
+
+`response.meta` contains availability, pagination, saved window settings, score,
+evaluation time and the typed condition. Check `available` before interpreting
+the saved facts, and use `next_offset` for another page. The condition fields
+`condition_measurement`, `condition_operator`, `condition_value` and
+`condition_unit` describe the signal predicate saved with the incident. These
+facts remain unchanged when current settings change. Nullable metadata uses
+`Option`; `Some(false)` and `None` have different meanings.
+
+Read current credit for one VPS or list visible VPSes with positive credit:
+
+```rust,ignore
+let current = api.vps__evidence(vps_id).index().send().await?;
+let page = api.vps_evidence().index().offset(0).limit(100).send().await?;
+```
+
+The overview accepts `.vps(id)`, `.user(id)`, `.node(id)`, `.location(id)` and
+`.environment(id)` resource filters, plus `.signal(name)`. The `user` filter is
+administrator-only. The server applies filters within the caller's permissions
+before counting and paging; send only filters supported by the server.
+
+The per-VPS response includes every supported signal, including no-data rows.
+The overview includes only positive credit, including subsecond values. Both
+use the current rolling window. Members see their own VPSes; administrators
+can see all VPSes permitted by the server. Generated methods do not establish
+that a server supports these endpoints or that the caller has access.
+
+Keep `credit_us == None` distinct from `Some(0)`: unavailable credit can occur
+even when `configuration_valid` is true, such as during an ownership change.
+Zero means no recorded credit; it does not establish VPS health or collection
+coverage. Positive credit may remain visible while observations are stale or
+reporting is disabled. Observation freshness, source qualification, reporting
+eligibility and whether a report is due are separate facts.
+
+Current response metadata includes `read_at`, `configuration_valid` and
+`unavailable_signals`; the overview also provides counts and pagination.
+`unavailable_signals` is generated as `Option<serde_json::Value>`. The server
+returns an array of strings, sorted without duplicates, naming selected signals
+with invalid configuration; an empty array means none. Check that the value is
+an array and that each element is a string before using it. The generated type
+does not provide a `Vec<String>` guarantee. Missing or stale observations alone
+do not make the configuration invalid.
+
+The generic `evidence_interval` resource replaces the draft `rtnl_interval`
+resource. There is no compatibility alias. Use the matching backend API before
+calling the new methods.
+
+### Memory pressure history
+
+Read daily recorded time for one VPS through the root history resource:
+
+```rust,ignore
+let history = api.vps_pressure_history().index().vps(12).days(30).send().await?;
+```
+
+Read rows from `history.output` and the range, availability and totals from
+`history.meta`. Nullable fields use `Option`; keep `None` distinct from zero
+and false. Timestamps remain strings. The generated `days` setter accepts an
+integer; the server validates the allowed periods.
+
+The server requires a VPS ID and accepts `days` as 7 or 30, defaulting to 7.
+The response contains that many ascending UTC calendar days, including today.
+Each row spans `from_at` to `to_at`; today's end is next UTC midnight and
+`partial_day` is true. `read_at` records when the response was read. Accepted
+contributions within the server's clock tolerance are not clipped to that time.
+
+`recorded_us` contains positive integer microseconds or null for a day without
+recorded data. `total_recorded_us` sums the returned positive values and is null
+when none are available. Preserve these unknown values instead of displaying
+zero. History uses daily totals retained for 32 UTC calendar days; it is not
+backfilled from incident reports or old observations and has no historical
+reporting threshold.
+
+History is scoped to the VPS's current owner and exact accounting epoch.
+`accounting_since` is nullable; `ownership_limited` says whether that epoch
+starts inside the requested range. `available` can be true without any recorded
+days. A pending transfer or known ownership-state mismatch makes history
+unavailable; a foreign VPS remains an authorization error. Current observation
+freshness and reporting settings do not decide history availability.
+`first_recorded_at` is the earliest retained acceptance timestamp for this owner
+and epoch across the full 32-day retention period, independent of `days`.
+It does not establish the first occurrence or the start of collection coverage.
+Check the server's capabilities and authorization before offering this read.
 
 ## Offline generation
 
