@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Synchronize the saved API snapshot and generated bindings for system
+  configuration choices and administrator incident-policy reads.
+
 ## 0.2.0
 
 - Regenerate API 7.0 from the vpsAdmin source fixture with all bundled plugins,

@@ -87,6 +87,15 @@ be unavailable. Mail state `pending` means the notice has not been queued.
 `queued` does not establish SMTP success; `sent` means SMTP succeeded, without
 proving delivery to the recipient's inbox.
 
+## System configuration metadata
+
+SystemConfig outputs expose `choices` as optional Custom JSON and
+`value_nullable` as an optional boolean. Missing and null metadata decode to
+`None`, allowing reads from older APIs. Consumers validate the ordered choice
+values and labels before offering a select; labels already use the API request
+language. Update retains its existing Custom value input, including explicit
+null. The server enforces the setting's membership and nullability rules.
+
 ## Offline generation
 
 Obtain a clean, separate HaveAPI checkout at the exact revision recorded in
