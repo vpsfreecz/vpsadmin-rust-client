@@ -7,6 +7,8 @@ pub mod find_by_name;
 pub mod index;
 pub mod inherit;
 pub mod migrate;
+pub mod preview_snapshot_removal;
+pub mod remove_snapshots;
 pub mod show;
 pub mod update;
 
@@ -112,6 +114,46 @@ impl<'a, C: runtime::Mode> Handle<'a, C> {
         let mut path_params = self.path_params.clone();
         path_params.insert("dataset_id".to_owned(), dataset_id.to_string());
         runtime::Request::new(self.client, &migrate::SPEC, path_params, Default::default())
+    }
+    pub fn preview_snapshot_removal(
+        &self,
+        dataset_id: impl ToString,
+    ) -> runtime::Request<
+        'a,
+        C,
+        preview_snapshot_removal::Input,
+        preview_snapshot_removal::Output,
+        preview_snapshot_removal::Meta,
+    > {
+        #[allow(unused_mut)]
+        let mut path_params = self.path_params.clone();
+        path_params.insert("dataset_id".to_owned(), dataset_id.to_string());
+        runtime::Request::new(
+            self.client,
+            &preview_snapshot_removal::SPEC,
+            path_params,
+            Default::default(),
+        )
+    }
+    pub fn remove_snapshots(
+        &self,
+        dataset_id: impl ToString,
+    ) -> runtime::Request<
+        'a,
+        C,
+        remove_snapshots::Input,
+        remove_snapshots::Output,
+        remove_snapshots::Meta,
+    > {
+        #[allow(unused_mut)]
+        let mut path_params = self.path_params.clone();
+        path_params.insert("dataset_id".to_owned(), dataset_id.to_string());
+        runtime::Request::new(
+            self.client,
+            &remove_snapshots::SPEC,
+            path_params,
+            Default::default(),
+        )
     }
     pub fn show(
         &self,

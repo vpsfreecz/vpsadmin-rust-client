@@ -1,11 +1,11 @@
 {
   "api_version": "7.0",
   "coverage": {
-    "action_count": 535,
-    "api_action_count": 530,
+    "action_count": 537,
+    "api_action_count": 532,
     "authentication_action_count": 5,
     "completeness": "declared source fixture with all six bundled plugins",
-    "parameter_count": 9044,
+    "parameter_count": 9058,
     "plugins": [
       "monitoring",
       "newslog",
@@ -57,11 +57,11 @@
     ]
   },
   "schema_format": 1,
-  "schema_sha256": "7088ef00b82964437746ad3e46b3ca78da515b8fde18cae46f1c275ef68f9bf9",
+  "schema_sha256": "41a951f1a5509fd9105eb2cf27dbd14f0e0d3b15842615ec66d4774f089ba11c",
   "source_export": {
     "profile": "vpsadmin-full-fixture",
-    "provenance_sha256": "2dc3ebd685f416b8099cd23fe4c9f14ea6c0342a2eed117323988f34268a1e76",
-    "revision": "5725a0996fb60767511bfc86482acefdec9eb9d9"
+    "provenance_sha256": "592e3f1ffe9a16bc1db6a885a8f06b9ca70e447bf60553840745c72ea77777c5",
+    "revision": "10df8f0230507d63551ec727605c61dca3c7985c"
   },
   "toolchain": {
     "cargo": "cargo 1.98.0 (797e8a9bc 2026-08-05)",

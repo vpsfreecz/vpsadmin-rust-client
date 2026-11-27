@@ -1,5 +1,5 @@
 {
-  "action_count": 535,
+  "action_count": 537,
   "actions": [
     {
       "method": "POST",
@@ -3010,6 +3010,122 @@
         ]
       ],
       "path": "/v7.0/datasets/{dataset_id}/migrate"
+    },
+    {
+      "method": "POST",
+      "name": [
+        "dataset",
+        "preview_snapshot_removal"
+      ],
+      "parameters": [
+        [
+          "dataset",
+          "preview_snapshot_removal",
+          "input",
+          "disable_plans"
+        ],
+        [
+          "dataset",
+          "preview_snapshot_removal",
+          "input",
+          "recursive"
+        ],
+        [
+          "dataset",
+          "preview_snapshot_removal",
+          "output",
+          "manifest"
+        ],
+        [
+          "dataset",
+          "preview_snapshot_removal",
+          "output",
+          "manifest_digest"
+        ],
+        [
+          "dataset",
+          "preview_snapshot_removal",
+          "output",
+          "manifest_version"
+        ],
+        [
+          "dataset",
+          "preview_snapshot_removal",
+          "meta",
+          "global",
+          "input",
+          "no"
+        ]
+      ],
+      "path": "/v7.0/datasets/{dataset_id}/preview_snapshot_removal"
+    },
+    {
+      "method": "POST",
+      "name": [
+        "dataset",
+        "remove_snapshots"
+      ],
+      "parameters": [
+        [
+          "dataset",
+          "remove_snapshots",
+          "input",
+          "disable_plans"
+        ],
+        [
+          "dataset",
+          "remove_snapshots",
+          "input",
+          "manifest_digest"
+        ],
+        [
+          "dataset",
+          "remove_snapshots",
+          "input",
+          "recursive"
+        ],
+        [
+          "dataset",
+          "remove_snapshots",
+          "meta",
+          "global",
+          "input",
+          "includes"
+        ],
+        [
+          "dataset",
+          "remove_snapshots",
+          "meta",
+          "global",
+          "input",
+          "no"
+        ],
+        [
+          "dataset",
+          "remove_snapshots",
+          "meta",
+          "global",
+          "output",
+          "action_state_id"
+        ],
+        [
+          "dataset",
+          "remove_snapshots",
+          "meta",
+          "object",
+          "output",
+          "path_params"
+        ],
+        [
+          "dataset",
+          "remove_snapshots",
+          "meta",
+          "object",
+          "output",
+          "resolved"
+        ]
+      ],
+      "path": "/v7.0/datasets/{dataset_id}/remove_snapshots"
     },
     {
       "method": "GET",
@@ -66810,7 +66926,7 @@
   ],
   "api_version": "7.0",
   "coverage": "captured description only; plugin coverage unknown",
-  "parameter_count": 9044,
+  "parameter_count": 9058,
   "profile": "vpsadmin-full-fixture",
   "resource_count": 157,
   "resources": [
@@ -67337,5 +67453,5 @@
       "token"
     ]
   ],
-  "schema_sha256": "7088ef00b82964437746ad3e46b3ca78da515b8fde18cae46f1c275ef68f9bf9"
+  "schema_sha256": "41a951f1a5509fd9105eb2cf27dbd14f0e0d3b15842615ec66d4774f089ba11c"
 }

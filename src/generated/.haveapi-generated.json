@@ -9,7 +9,7 @@
     "rustfmt_version": "rustfmt 1.9.0"
   },
   "files": {
-    "mod.rs": "40873268791acacfad0803d7201d570679f3d15c3f38f32bcf3b6eea59c605c5",
+    "mod.rs": "91d1986cfe190eac2cb6f9bbdb740ae609136b493c5433e3dea4388487cba461",
     "resources/action_state/cancel.rs": "d41d4b3254c7dd688436e17bfb0eae58d59fbc800209ec8d533920d76c9503a6",
     "resources/action_state/index.rs": "1afeead199a17b55509a5839635000e687893fe9ebe203e99d4159a838889d20",
     "resources/action_state/mod.rs": "1726d99dce7564011fcc61771d38d9706c566e532565e4847a08ccabfa50ecb0",
@@ -57,7 +57,9 @@
     "resources/dataset/index.rs": "b17742e3a11a1886ad521e582cb633c544341a09015467cde2d6e909fb4918ed",
     "resources/dataset/inherit.rs": "48436c09397242bc81f91369591e61e5cb10158acde22d1f420b350aace60b6e",
     "resources/dataset/migrate.rs": "b801a82ef92bab6ab5558a3dc9ee0374dd8f2d53b728051b5ceb79354ca19f59",
-    "resources/dataset/mod.rs": "8a838b59e5318c0be030126164ecc288441e1c226e0ca3aabfb1694de49a997b",
+    "resources/dataset/mod.rs": "dc1e1f06f5b68e2927548e683a195c67b42589e99a58a1d3c7526cce6bca59d7",
+    "resources/dataset/preview_snapshot_removal.rs": "d432247f1d02da3164976d12b3fcb6454225b0b32d672435bda151660158d6f5",
+    "resources/dataset/remove_snapshots.rs": "21f76bf3292de05b0db8cf01515cc35c67cd4afc4cb3b686f2f7b123a3965a0b",
     "resources/dataset/show.rs": "0330a2ef53a9fdcbf6c8bdc2a8d8c407ecac9fc508d79562d54e765ab8148890",
     "resources/dataset/update.rs": "71d77bfa8989c5d40113d9cc629e7c17505681cbbd4dc3040d1caece49062f01",
     "resources/dataset__plan/create.rs": "f1c9412733d37405c5ec9d8b565a2c3f3e89d69d8c1e82693348e13049d9641a",
@@ -720,5 +722,5 @@
   "protocol_version": "2.0",
   "ruby_dependency_lock_sha256": "061f5e4e0f3cb48d529a7914eb087cabda9889d4200a1af9d0d70af7908b5459",
   "runtime_sha256": "9c50b8167a8b82118ba42372633e3b004276ba49fbdfed75d4979a913feea739",
-  "schema_sha256": "7088ef00b82964437746ad3e46b3ca78da515b8fde18cae46f1c275ef68f9bf9"
+  "schema_sha256": "41a951f1a5509fd9105eb2cf27dbd14f0e0d3b15842615ec66d4774f089ba11c"
 }
